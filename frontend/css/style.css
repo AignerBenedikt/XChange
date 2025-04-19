@@ -5,16 +5,16 @@ html, body {
     overflow-x: hidden;
 }
 
+header {
+    background: linear-gradient(to bottom, darkgray, lightgray);
+    height: 50px;
+    padding: 1rem 0;
+}
+
 body {
     font-family: Inter, sans-serif;
     text-align: center;
     background-color: lightgray;
-}
-
-header {
-    background: linear-gradient(to bottom, darkgrey, lightgray);
-    height: 50px;
-    padding: 1rem 0;
 }
 
 nav {
