@@ -1,0 +1,51 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+header {
+    background: linear-gradient(to bottom, darkgray, lightgray);
+    height: 50px;
+    padding: 1rem 0;
+}
+
+body {
+    font-family: Inter, sans-serif;
+    text-align: center;
+    background-color: lightgray;
+}
+
+nav {
+    display: flex;
+}
+
+nav ul {
+    align-items: center;
+    list-style-type: none;
+    margin: 0;
+    display: flex;
+    gap: 40px;
+}
+
+nav li {
+    display: inline-block;
+    margin: 0;
+    padding-left: 25px;
+}
+
+nav a {
+    font-size: 22px;
+    text-decoration: none;
+    color: #333;
+    padding-left: 15px;
+    display: inline-block;
+}
+
+#logo {
+    width: auto;
+    height: 65px;
+    display: inline-block;
+    margin-left: 30px;
+}
