@@ -6,46 +6,153 @@ html, body {
 }
 
 header {
-    background: linear-gradient(to bottom, darkgray, lightgray);
-    height: 50px;
-    padding: 1rem 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: green;
+    grid-area: header;
+    height: 100%;
 }
 
 body {
+    display: grid;
     font-family: Inter, sans-serif;
     text-align: center;
     background-color: lightgray;
+    grid-template-rows: minmax(64px, 128px) auto minmax(64px, 128px);
+    grid-template-columns: minmax(192px, 256px) auto;
+    grid-template-areas:
+    "header header"
+    "nav main"
+    "footer footer";
+
 }
 
 nav {
-    display: flex;
+    grid-area: nav;
+    background-color: darkslateblue;
+}
+
+main {
+    grid-area: main;
+}
+
+footer {
+    grid-area: footer;
 }
 
 nav ul {
     align-items: center;
     list-style-type: none;
     margin: 0;
-    display: flex;
-    gap: 40px;
 }
 
 nav li {
     display: inline-block;
-    margin: 0;
-    padding-left: 25px;
+    margin-top: 25px;
 }
 
 nav a {
     font-size: 22px;
     text-decoration: none;
     color: #333;
-    padding-left: 15px;
     display: inline-block;
+}
+h1 {
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+#main-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-right: 250px;
+}
+#logo-link {
+    position: absolute;
+    left: 1rem;
 }
 
 #logo {
-    width: auto;
-    height: 65px;
-    display: inline-block;
-    margin-left: 30px;
+    width: 80px;
+    height: 80px;
+    margin-top: 10px;
+    margin-left: 40px;
+}
+
+.converter-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.currency-box {
+    margin-bottom: 20px;
+}
+
+.currency-box label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.currency-box select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.converter-input {
+    margin-bottom: 20px;
+}
+
+.converter-input input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.conversion-result {
+    margin-top: 20px;
+}
+
+.conversion-result h3 {
+    font-size: 18px;
+    color: #333;
+}
+
+#result {
+    font-weight: bold;
+    color: #28a745;
 }
