@@ -120,6 +120,7 @@ h2 {
 }
 
 .converter-input input {
+    display: flex;
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -151,6 +152,27 @@ button:hover {
     font-size: 18px;
     color: #333;
 }
+
+.dropdown {
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    display: none;
+    position: absolute;
+    width: 200px;
+    background-color: white;
+    z-index: 1;
+}
+
+.dropdown div {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.dropdown div:hover {
+    background-color: #f0f0f0;
+}
+
 
 #result {
     font-weight: bold;
