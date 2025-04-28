@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+
         // Event-Listener für die Eingabefelder
         fromCurrencyInput.addEventListener('input', () => {
             showDropdown(fromCurrencyInput, fromCurrencyDropdown, currencies);
@@ -64,7 +65,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
+
+
+
     } catch (error) {
         console.error('Failed to load currencies:', error);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const swapIcon = document.querySelector('.swap-icon');
+
+    if (swapIcon) {
+        swapIcon.addEventListener('click', () => {
+            const fromCurrencyInput = document.getElementById('from-currency');
+            const toCurrencyInput = document.getElementById('to-currency');
+
+            const temp = fromCurrencyInput.value;
+            fromCurrencyInput.value = toCurrencyInput.value;
+            toCurrencyInput.value = temp;
+        });
     }
 });
