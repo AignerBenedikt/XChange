@@ -65,6 +65,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
+        document.addEventListener('click', (e) => {
+            if(e.target.id === 'convert-btn'){
+                const fromCurrency = fromCurrencyInput.value.split(' - ')[0];
+                const toCurrency = toCurrencyInput.value.split(' - ')[0];
+                const result = document.getElementById('result');
+                const amount = document.getElementById('amount').value;
+
+                (async () => {
+                    const params = new URLSearchParams({
+                        from: fromCurrency,
+                        to: toCurrency,
+                        amount: amount
+                    });
+                    const response = await fetch('http://localhost:3000/convert?' + params.toString());
+                        const resultData = await response.json();
+                        result.textContent = resultData.data.converted = resultData.data.converted.toFixed(2);
+            })();
+            }
+        })
+
 
 
 
@@ -87,3 +107,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+
