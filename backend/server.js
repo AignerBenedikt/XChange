@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 // Welcome message
 app.get('/', (req, res) => {
-    res.send(' Welcome to the currency converter Xchange. Follow /convert?from=USD&to=EUR&amount=100');
+    res.send('Welcome to the currency converter Xchange. Follow /convert?from=USD&to=EUR&amount=100');
 });
 
 // Endpoint currency converter

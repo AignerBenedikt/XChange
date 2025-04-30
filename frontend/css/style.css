@@ -17,7 +17,6 @@ header {
 body {
     display: grid;
     font-family: Inter, sans-serif;
-    text-align: center;
     background-color: darkslateblue;
     grid-template-rows: minmax(64px, 128px) auto minmax(64px, 128px);
     grid-template-columns: minmax(192px, 256px) auto;
@@ -26,8 +25,6 @@ body {
     "nav main"
     "footer footer";
 }
-
-
 
 nav {
     grid-area: nav;
@@ -41,11 +38,21 @@ main {
 }
 
 footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     grid-area: footer;
+    color: #f0f0f0;
+}
+
+footer > li {
+    display: inline-block;
+    margin-top: 150px;
+    margin-right: 25px;
+    list-style: none;
 }
 
 nav ul {
-    align-items: center;
     list-style-type: none;
     margin: 0;
 }
@@ -58,10 +65,11 @@ nav li {
 nav a {
     font-size: 22px;
     text-decoration: none;
-    color: #333;
+    color: #f0f0f0;
     display: inline-block;
 }
 h1 {
+    margin-left: 50px;
     font-size: 32px;
     color: #f0f0f0;
 }
@@ -92,7 +100,7 @@ h2 {
 
 .currency-box {
     margin-bottom: 20px;
-    position: relative;
+    position: absolute;
 }
 
 .currency-box label {
@@ -201,11 +209,6 @@ h2 {
 }
 
 
-.conversion-result {
-    margin-top: 1rem;
-    font-size: 1.4rem;
-}
-
 .converter-box {
     background-color: white;
     padding: 2rem;
@@ -218,7 +221,7 @@ h2 {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-right: 250px;
+    margin-right: 300px;
 }
 
 button {
@@ -238,12 +241,8 @@ button:hover {
 }
 
 .conversion-result {
-    margin-top: 20px;
-}
-
-.conversion-result h3 {
-    font-size: 18px;
-    color: #333;
+    font-size: 24px;
+    color: darkslateblue;
 }
 
 .dropdown {
@@ -266,8 +265,21 @@ button:hover {
     background-color: #f0f0f0;
 }
 
+#from-currency {
+    width: 90%;
+    height: 25px;
+}
+
+#to-currency {
+    width: 90%;
+    height: 25px;
+}
+
+#amount {
+    width: 95%;
+    height: 25px;
+}
 
 #result {
-    font-weight: bold;
-    color: #28a745;
+    margin-left: 130px;
 }

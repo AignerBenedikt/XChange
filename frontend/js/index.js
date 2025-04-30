@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const filterValue = inputElement.value.toLowerCase();
 
-            // Wenn der Filter leer ist, das Dropdown nicht anzeigen
             if (filterValue === '') return;
 
             // Gefilterte Währungen
@@ -47,8 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-
-        // Event-Listener für die Eingabefelder
         fromCurrencyInput.addEventListener('input', () => {
             showDropdown(fromCurrencyInput, fromCurrencyDropdown, currencies);
         });
@@ -80,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     const response = await fetch('http://localhost:3000/convert?' + params.toString());
                         const resultData = await response.json();
-                        result.textContent = resultData.data.converted = resultData.data.converted.toFixed(2);
+                        result.textContent = resultData.data.converted = resultData.data.converted.toFixed(2) + " " + toCurrency;
             })();
             }
         })
