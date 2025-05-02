@@ -1,0 +1,102 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    display: grid;
+    font-family: Inter, sans-serif;
+    background-color: darkslateblue;
+    grid-template-rows: minmax(64px, 128px) auto minmax(64px, 128px);
+    grid-template-columns: minmax(192px, 256px) auto minmax(192px, 256px);
+    grid-template-areas:
+    "header header header"
+    "nav main currencies"
+    "footer footer footer";
+}
+
+header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: header;
+    height: 100%;
+}
+
+nav {
+    grid-area: nav;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+}
+
+nav li {
+    display: inline-block;
+    margin-top: 35px;
+}
+
+nav a {
+    font-size: 22px;
+    text-decoration: none;
+    color: #f0f0f0;
+    display: inline-block;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: main;
+}
+
+#currency-list {
+    grid-area: currencies;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+h2 {
+    font-size: 24px;
+    color: #f0f0f0;
+}
+
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: footer;
+    color: #f0f0f0;
+}
+
+footer li {
+    display: inline-block;
+    margin-top: 150px;
+    margin-right: 25px;
+    list-style: none;
+}
+
+#heading {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: header;
+    height: 80%;
+    color: #f0f0f0;
+}
+
+#logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin-top: 10px;
+    margin-left: 40px;
+}
