@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>XChange</title>
+</head>
+<body>
+<header>
+    <a href="index.html" id="logo-link"><img src="/resources/XChange.png" alt="XChange" id="logo"></a>
+    <h1>Currency Conversion</h1>
+</header>
+<nav>
+    <ul>
+        <li><a href="favorites.html">Favorites</a></li>
+        <li><a href="displayExchangeRates.html">Exchange Rates</a></li>
+    </ul>
+</nav>
+
+<main>
+    <div id="converter-container">
+        <div class="converter-box">
+            <div class="amount-section">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" placeholder="1.000" />
+            </div>
+
+            <div class="currency-section">
+                <div class="currency-dropdown">
+                    <input type="text" id="from-currency" placeholder="From currency" />
+                    <div id="from-currency-dropdown" class="dropdown"></div>
+                </div>
+
+                <div class="swap-icon">
+                    &#8646;
+                </div>
+
+                <div class="currency-dropdown">
+                    <input type="text" id="to-currency" placeholder="To currency" />
+                    <div id="to-currency-dropdown" class="dropdown"></div>
+                </div>
+            </div>
+
+            <button id="convert-btn">Convert</button>
+
+            <div class="conversion-result">
+                <h3>Converted Amount: <span id="result">-</span></h3>
+            </div>
+        </div>
+    </div>
+    <div id="auth-controls">
+        <!-- Login Form -->
+        <div id="login-section">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter username">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter password">
+            <button id="login-btn">Login</button>
+            <button id="register-btn">Register</button>
+        </div>
+        <!-- Welcome & Logout -->
+        <div id="user-info" style="display: none;">
+            <p>Welcome, <span id="welcome-user">User</span>!</p>
+            <button id="logout-btn">Logout</button>
+        </div>
+    </div>    
+</main>
+
+<footer>
+    <li>© XChange</li>
+    <li>―</li>
+    <li>Created by:</li>
+    <li><a href="mailto:benedikt.aigner@stud.fh-campuswien.ac.at">Benedikt Aigner</a></li>
+    <li><a href="mailto:laura.munoz.lopez@stud.fh-campuswien.ac.at">Laura Munoz Lopes</a></li>
+    <li><a href="mailto:melih.gueldogdu@stud.fh-campuswien.ac.at">Melih Güldogdu</a></li>
+    <li>―</li>
+    <li>
+        <a href="https://www.fh-campuswien.ac.at/" target="_blank" rel="noopener noreferrer">Visit us at UAS Campus Vienna</a>
+    </li>
+    </ul>
+</footer>
+
+<script src="/js/index.js"></script>
+</body>
+</html>

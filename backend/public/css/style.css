@@ -1,0 +1,329 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: header;
+    height: 100%;
+}
+
+body {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "nav main"
+        "footer footer";
+    grid-template-columns: minmax(192px, 256px) auto;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    font-family: Inter, sans-serif;
+    background-color: darkslateblue;
+    margin: 0;
+}
+
+nav {
+    grid-area: nav;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: main;
+}
+
+footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    grid-area: footer;
+    color: #f0f0f0;
+    background-color: darkslateblue;
+}
+
+footer > li {
+    display: inline-block;
+    margin: 0 10px;
+    list-style: none;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+}
+
+nav li {
+    display: inline-block;
+    margin-top: 25px;
+}
+
+nav a {
+    font-size: 22px;
+    text-decoration: none;
+    color: #f0f0f0;
+    display: inline-block;
+}
+h1 {
+    margin-left: 50px;
+    font-size: 32px;
+    color: #f0f0f0;
+}
+
+h2 {
+    font-size: 24px;
+    color: #f0f0f0;
+}
+
+#main-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-right: 250px;
+}
+#logo-link {
+    position: absolute;
+    left: 1rem;
+}
+
+#logo {
+    width: 80px;
+    height: 80px;
+    margin-top: 10px;
+    margin-left: 40px;
+}
+
+.currency-box {
+    margin-bottom: 20px;
+    position: absolute;
+}
+
+.currency-box label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.currency-box select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.converter-input {
+    margin-bottom: 20px;
+}
+
+.converter-input input {
+    display: flex;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.amount-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.amount-section input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    border: 2px solid #ccc;
+    border-radius: 0.75rem;
+}
+
+.currency-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.currency-dropdown {
+    flex: 1;
+    position: relative;
+}
+
+.currency-dropdown input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    border: 2px solid #ccc;
+    border-radius: 0.75rem;
+}
+
+.swap-icon {
+    font-size: 2rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 10;
+    display: none;
+}
+
+.dropdown div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown div:hover {
+    background-color: #f0f0f0;
+}
+
+#convert-btn {
+    padding: 1rem;
+    background-color: darkslateblue;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+#convert-btn:hover {
+    background-color: #45a049;
+}
+
+
+.converter-box {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 700px;
+    height: 100%;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-right: 300px;
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.conversion-result {
+    font-size: 24px;
+    color: darkslateblue;
+}
+
+.dropdown {
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    display: none;
+    position: absolute;
+    width: 200px;
+    background-color: white;
+    z-index: 1;
+}
+
+.dropdown div {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.dropdown div:hover {
+    background-color: #f0f0f0;
+}
+
+#from-currency {
+    width: 90%;
+    height: 25px;
+}
+
+#to-currency {
+    width: 90%;
+    height: 25px;
+}
+
+#amount {
+    width: 95%;
+    height: 25px;
+}
+
+#result {
+    margin-left: 130px;
+}
+
+#auth-controls {
+    margin-top: 1.5rem;
+    text-align: center;
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#login-section input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid #ccc;
+    margin-bottom: 0.5rem;
+    width: 200px;
+}
+
+#login-section button,
+#logout-btn {
+    padding: 0.5rem 1rem;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#login-section button:hover,
+#logout-btn:hover {
+    background-color: #0056b3;
+}
+
+#welcome-user {
+    font-weight: bold;
+    color: #f0f0f0;
+}
