@@ -12,9 +12,10 @@ const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET;
 
 // Welcome message
-//app.get('/', (req, res) => {
-//    res.send('Welcome to the currency converter Xchange. Follow /convert?from=USD&to=EUR&amount=100');
-//});
+app.get('/', (req, res) => {
+    res.send('Welcome to the currency converter Xchange. Follow /convert?from=USD&to=EUR&amount=100');
+});
+
 const path = require('path');
 app.use(express.static(path.join(__dirname, 'public/')));
 
@@ -22,7 +23,7 @@ const bcrypt = require('bcrypt');
 const users = {};
 
 // Endpoint currency converter
-app.get('/convert', authenticateToken, async (req, res) => {
+app.get('/convert', async (req, res) => {
     const { from, to, amount } = req.query;
 
     if (!from || !to || !amount) {
@@ -32,17 +33,14 @@ app.get('/convert', authenticateToken, async (req, res) => {
     try {
         const url = `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_API_KEY}/pair/${from}/${to}/${amount}`;
         const response = await axios.get(url);
-
         const data = response.data;
 
-        // Validate that the API returns success
         if (data.result !== "success") {
             return res.status(500).json({ error: 'Error getting data from the ExchangeRate API' });
         }
 
-        // Answer Xchange
-        const customResponse = {
-            message: "this is your conversion ",
+        res.json({
+            message: "this is your conversion",
             data: {
                 from: data.base_code,
                 to: data.target_code,
@@ -51,17 +49,16 @@ app.get('/convert', authenticateToken, async (req, res) => {
                 conversion_rate: data.conversion_rate,
                 date: data.time_last_update_utc
             }
-        };
-
-        res.json(customResponse);
+        });
     } catch (error) {
         console.error("Error in the API request:", error.message);
         res.status(500).json({ error: 'Internal error in getting the exchange rate' });
     }
 });
 
+
 // Endpoint to obtain available currencies
-app.get('/currencies', authenticateToken, async (req, res) => {
+app.get('/currencies', async (req, res) => {
     const { code, name } = req.query;
 
     try {
@@ -87,73 +84,70 @@ app.get('/currencies', authenticateToken, async (req, res) => {
             }
         }
 
-        res.json({
-            currencies: codes
-        });
-
+        res.json({ currencies: codes });
     } catch (error) {
         console.error("Fail:", error.message);
-        res.status(500).json({ error: 'It is not possible to show the currencies ' });
+        res.status(500).json({ error: 'It is not possible to show the currencies' });
     }
 });
 
-function authenticateToken(req, res, next) {
-    // Middleware to verify token
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.sendStatus(401);
+    function authenticateToken(req, res, next) {
+        // Middleware to verify token
+        const token = req.headers['authorization']?.split(' ')[1];
+        if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
+        jwt.verify(token, SECRET_KEY, (err, user) => {
+            if (err) return res.sendStatus(403);
+            req.user = user;
+            next();
+        });
+    }
+
+    app.post('/login', async (req, res) => {
+        const { username, password } = req.body;
+        const user = users[username];
+        if (!user) return res.status(400).json({ error: 'User not found' });
+
+        const isValid = await bcrypt.compare(password, user.passwordHash);
+        if (!isValid) return res.status(401).json({ error: 'Invalid password' });
+
+        const token = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '1h' });
+        res.json({ token });
     });
-}
-
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = users[username];
-    if (!user) return res.status(400).json({ error: 'User not found' });
-
-    const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) return res.status(401).json({ error: 'Invalid password' });
-
-    const token = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '1h' });
-    res.json({ token });
-});
 
 
-app.get('/protected-route', authenticateToken, (req, res) => {
-    res.json({ message: `Hello, ${req.user.name}! You have accessed a protected route.` });
-});
+    app.get('/protected-route', authenticateToken, (req, res) => {
+        res.json({ message: 'Hello, ${req.user.name}! You have accessed a protected route.' });
+    });
 
-app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    if (users[username]) {
-        return res.status(400).json({ error: 'User already exists' });
-    }
+    app.post('/register', async (req, res) => {
+        const { username, password } = req.body;
+        if (users[username]) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    users[username] = { passwordHash, favorites: [] };
-    res.json({ message: 'User registered successfully' });
-});
+        const passwordHash = await bcrypt.hash(password, 10);
+        users[username] = { passwordHash, favorites: [] };
+        res.json({ message: 'User registered successfully' });
+    });
 
-app.get('/favorites', authenticateToken, (req, res) => {
-    const username = req.user.name;
-    const user = users[username];
-    res.json({ favorites: user.favorites });
-});
+    app.get('/favorites', authenticateToken, (req, res) => {
+        const username = req.user.name;
+        const user = users[username];
+        res.json({ favorites: user.favorites });
+    });
 
-app.post('/favorites', authenticateToken, (req, res) => {
-    const username = req.user.name;
-    const { from, to } = req.body;
-    const user = users[username];
+    app.post('/favorites', authenticateToken, (req, res) => {
+        const username = req.user.name;
+        const { from, to } = req.body;
+        const user = users[username];
 
-    const exists = user.favorites.find(fav => fav.from === from && fav.to === to);
-    if (!exists) user.favorites.push({ from, to });
+        const exists = user.favorites.find(fav => fav.from === from && fav.to === to);
+        if (!exists) user.favorites.push({ from, to });
 
-    res.json({ message: 'Favorite saved', favorites: user.favorites });
-});
+        res.json({ message: 'Favorite saved', favorites: user.favorites });
+    });
 
-app.listen(PORT, () => {
-    console.log(`Server is listening on: http://localhost:${PORT}`);
-});
+    app.listen(PORT, () => {
+        console.log(`Server is listening on: http://localhost:${PORT}`);
+    });
