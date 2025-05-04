@@ -91,63 +91,93 @@ app.get('/currencies', async (req, res) => {
     }
 });
 
-    function authenticateToken(req, res, next) {
-        // Middleware to verify token
-        const token = req.headers['authorization']?.split(' ')[1];
-        if (!token) return res.sendStatus(401);
-
-        jwt.verify(token, SECRET_KEY, (err, user) => {
-            if (err) return res.sendStatus(403);
-            req.user = user;
-            next();
-        });
+app.get('/displayRates', async (req, res) => {
+    const base = req.query.base;
+    if (!base) {
+        return res.status(400).json({ error: 'Missing base currency' });
     }
 
-    app.post('/login', async (req, res) => {
-        const { username, password } = req.body;
-        const user = users[username];
-        if (!user) return res.status(400).json({ error: 'User not found' });
+    try {
+        const url = `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_API_KEY}/latest/${base}`;
+        const response = await axios.get(url);
+        const data = response.data;
 
-        const isValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isValid) return res.status(401).json({ error: 'Invalid password' });
-
-        const token = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '1h' });
-        res.json({ token });
-    });
-
-
-    app.get('/protected-route', authenticateToken, (req, res) => {
-        res.json({ message: 'Hello, ${req.user.name}! You have accessed a protected route.' });
-    });
-
-    app.post('/register', async (req, res) => {
-        const { username, password } = req.body;
-        if (users[username]) {
-            return res.status(400).json({ error: 'User already exists' });
+        if (data.result !== "success") {
+            return res.status(500).json({ error: 'Error getting data from the ExchangeRate API' });
         }
 
-        const passwordHash = await bcrypt.hash(password, 10);
-        users[username] = { passwordHash, favorites: [] };
-        res.json({ message: 'User registered successfully' });
-    });
+        res.json({
+            data: {
+                base_currency: data.base_code,
+                conversion_rates: data.conversion_rates,
+                date: data.time_last_update_utc
+            }
+        });
+    } catch (error) {
+        console.error("Error in the API request:", error.message);
+        res.status(500).json({ error: 'Internal error in getting the exchange rate' });
+    }
+});
 
-    app.get('/favorites', authenticateToken, (req, res) => {
-        const username = req.user.name;
-        const user = users[username];
-        res.json({ favorites: user.favorites });
-    });
 
-    app.post('/favorites', authenticateToken, (req, res) => {
-        const username = req.user.name;
-        const { from, to } = req.body;
-        const user = users[username];
 
-        const exists = user.favorites.find(fav => fav.from === from && fav.to === to);
-        if (!exists) user.favorites.push({ from, to });
+        function authenticateToken(req, res, next) {
+            // Middleware to verify token
+            const token = req.headers['authorization']?.split(' ')[1];
+            if (!token) return res.sendStatus(401);
 
-        res.json({ message: 'Favorite saved', favorites: user.favorites });
-    });
+            jwt.verify(token, SECRET_KEY, (err, user) => {
+                if (err) return res.sendStatus(403);
+                req.user = user;
+                next();
+            });
+        }
 
-    app.listen(PORT, () => {
-        console.log(`Server is listening on: http://localhost:${PORT}`);
-    });
+        app.post('/login', async (req, res) => {
+            const {username, password} = req.body;
+            const user = users[username];
+            if (!user) return res.status(400).json({error: 'User not found'});
+
+            const isValid = await bcrypt.compare(password, user.passwordHash);
+            if (!isValid) return res.status(401).json({error: 'Invalid password'});
+
+            const token = jwt.sign({name: username}, SECRET_KEY, {expiresIn: '1h'});
+            res.json({token});
+        });
+
+
+        app.get('/protected-route', authenticateToken, (req, res) => {
+            res.json({message: 'Hello, ${req.user.name}! You have accessed a protected route.'});
+        });
+
+        app.post('/register', async (req, res) => {
+            const {username, password} = req.body;
+            if (users[username]) {
+                return res.status(400).json({error: 'User already exists'});
+            }
+
+            const passwordHash = await bcrypt.hash(password, 10);
+            users[username] = {passwordHash, favorites: []};
+            res.json({message: 'User registered successfully'});
+        });
+
+        app.get('/favorites', authenticateToken, (req, res) => {
+            const username = req.user.name;
+            const user = users[username];
+            res.json({favorites: user.favorites});
+        });
+
+        app.post('/favorites', authenticateToken, (req, res) => {
+            const username = req.user.name;
+            const {from, to} = req.body;
+            const user = users[username];
+
+            const exists = user.favorites.find(fav => fav.from === from && fav.to === to);
+            if (!exists) user.favorites.push({from, to});
+
+            res.json({message: 'Favorite saved', favorites: user.favorites});
+        });
+
+        app.listen(PORT, () => {
+            console.log(`Server is listening on: http://localhost:${PORT}`);
+        });

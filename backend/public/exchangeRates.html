@@ -19,7 +19,15 @@
 </main>
 <section aria-label="Wechselkurse">
     <h2>Current Rates</h2>
-    <ul id="currency-list"></ul>
+    <label for="base-selector">Base currency:</label>
+    <select id="base-selector">
+        <option value="EUR">EUR</option>
+        <option value="USD">USD</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+        <option value="CHF">CHF</option>
+    </select>
+    <ul id="top-currencies-list"></ul>
 </section>
 <footer>
     <ul>
@@ -36,4 +44,5 @@
     </ul>
 </footer>
 </body>
+<script src="js/exchangeRates.js"></script>
 </html>
