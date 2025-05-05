@@ -9,7 +9,7 @@ body {
     display: grid;
     font-family: Inter, sans-serif;
     background-color: darkslateblue;
-    grid-template-rows: minmax(64px, 128px) auto minmax(64px, 128px);
+    grid-template-rows: min-content 1fr min-content;
     grid-template-columns: minmax(192px, 256px) auto minmax(192px, 256px);
     grid-template-areas:
     "header header header"
@@ -48,9 +48,15 @@ nav a {
 }
 
 main {
-    display: flex;
-    align-items: center;
+    text-align: center;
     grid-area: main;
+    width: 600px;
+    height: 400px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 #currency-list {
@@ -71,15 +77,16 @@ section[aria-label="Wechselkurse"] {
 }
 
 h2 {
-    font-size: 24px;
-    color: #4a90e2;
-    margin-bottom: 15px;
-    text-align: center;
+    margin-top: 40px;
+    font-size: 22px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
 }
 
 label {
     font-size: 16px;
-    margin-bottom: 10px;
+    margin-top: 20px;
+    font-weight: 600;
     display: block;
     color: #333;
 }
@@ -122,6 +129,16 @@ select:focus {
 
 #top-currencies-list li:hover {
     background-color: #e7f1ff;
+}
+
+#exchange-result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 12px;
+    background-color: #e6f4ea;
+    border-left: 5px solid #34a853;
+    border-radius: 8px;
 }
 
 body {

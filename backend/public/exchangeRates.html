@@ -15,18 +15,16 @@
     </ul>
 </nav>
 <main>
-    <h1 id="heading">Choose your Currency</h1>
+    <label for="base-selector">Base Currency</label>
+    <select id="base-selector"></select>
+
+    <label for="target-selector">Show rate of:</label>
+    <select id="target-selector"></select>
+
+    <p id="exchange-result">-</p>
 </main>
 <section aria-label="Wechselkurse">
-    <h2>Current Rates</h2>
-    <label for="base-selector">Base currency:</label>
-    <select id="base-selector">
-        <option value="EUR">EUR</option>
-        <option value="USD">USD</option>
-        <option value="GBP">GBP</option>
-        <option value="JPY">JPY</option>
-        <option value="CHF">CHF</option>
-    </select>
+    <h2>Top Currencies</h2>
     <ul id="top-currencies-list"></ul>
 </section>
 <footer>
