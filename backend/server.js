@@ -12,9 +12,9 @@ const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET;
 
 // Welcome message
-app.get('/', (req, res) => {
-    res.send('Welcome to the currency converter Xchange. Follow /convert?from=USD&to=EUR&amount=100');
-});
+//app.get('/', (req, res) => {
+   // res.send('Welcome to the currency converter Xchange. Follow /convert?from=USD&to=EUR&amount=100');
+//});
 
 const path = require('path');
 app.use(express.static(path.join(__dirname, 'public/')));

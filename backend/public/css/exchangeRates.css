@@ -8,7 +8,7 @@ html, body {
 body {
     display: grid;
     font-family: Inter, sans-serif;
-    background-color: darkslateblue;
+    background-color: #e6f4ea;
     grid-template-rows: min-content 1fr min-content;
     grid-template-columns: minmax(192px, 256px) auto minmax(192px, 256px);
     grid-template-areas:
@@ -43,7 +43,7 @@ nav li {
 nav a {
     font-size: 22px;
     text-decoration: none;
-    color: #f0f0f0;
+    color: black;
     display: inline-block;
 }
 
@@ -150,7 +150,7 @@ footer {
     align-items: center;
     justify-content: center;
     grid-area: footer;
-    color: #f0f0f0;
+    color: black;
 }
 
 footer li {

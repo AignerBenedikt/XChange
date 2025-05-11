@@ -12,6 +12,7 @@ header {
     justify-content: center;
     grid-area: header;
     height: 100%;
+    margin-top: 10px;
 }
 
 body {
@@ -24,7 +25,7 @@ body {
     grid-template-rows: auto 1fr auto;
     min-height: 100vh;
     font-family: Inter, sans-serif;
-    background-color: darkslateblue;
+    background-color: #e6f4ea;
     margin: 0;
 }
 
@@ -44,7 +45,7 @@ footer {
     align-items: center;
     justify-content: center;
     grid-area: footer;
-    color: #f0f0f0;
+    color: black;
 }
 
 footer li {
@@ -61,13 +62,13 @@ nav ul {
 
 nav li {
     display: inline-block;
-    margin-top: 25px;
+    margin-top: 45px;
 }
 
 nav a {
     font-size: 22px;
     text-decoration: none;
-    color: #f0f0f0;
+    color: black;
     display: inline-block;
 }
 h1 {
@@ -198,7 +199,7 @@ h2 {
 
 #convert-btn {
     padding: 1rem;
-    background-color: darkslateblue;
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 0.75rem;
@@ -207,7 +208,7 @@ h2 {
 }
 
 #convert-btn:hover {
-    background-color: #45a049;
+    background-color: #43b761;
 }
 
 
@@ -239,12 +240,12 @@ button {
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #43b761;
 }
 
 .conversion-result {
     font-size: 24px;
-    color: darkslateblue;
+    color: #28a745;
 }
 
 .dropdown {
@@ -307,7 +308,7 @@ button:hover {
 #login-section button,
 #logout-btn {
     padding: 0.5rem 1rem;
-    background-color: #007BFF;
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -318,10 +319,10 @@ button:hover {
 
 #login-section button:hover,
 #logout-btn:hover {
-    background-color: #0056b3;
+    background-color: #43b761;
 }
 
 #welcome-user {
     font-weight: bold;
-    color: #f0f0f0;
+    color: black;
 }
