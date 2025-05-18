@@ -4,6 +4,7 @@ async function initApp() {
     updateAuthUI();
     bindAuthEvents();
     bindSwapEvent();
+    bindFavoriteEvent();
     await loadCurrencies();
 }
 
@@ -104,6 +105,45 @@ function bindSwapEvent() {
             toInput.value = temp;
         });
     }
+}
+function bindFavoriteEvent() {
+    const favoriteBtn = document.getElementById('add-favorite-btn');
+
+    favoriteBtn.addEventListener('click', async () => {
+        const fromInput = document.getElementById('from-currency').value;
+        const toInput = document.getElementById('to-currency').value;
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            alert('Please login first');
+            return;
+        }
+
+        const fromCode = fromInput.split(' - ')[0];
+        const toCode = toInput.split(' - ')[0];
+
+        if (!fromCode || !toCode) {
+            alert('Bitte gültige Währungen auswählen.');
+            return;
+        }
+
+        const response = await fetch('http://localhost:3000/favorites', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ from: fromCode, to: toCode })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('Favorit gespeichert!');
+        } else {
+            alert(`Fehler: ${data.error || 'Unbekannter Fehler'}`);
+        }
+    });
 }
 
 function bindAuthEvents() {
