@@ -178,6 +178,38 @@ app.get('/displayRates', async (req, res) => {
             res.json({message: 'Favorite saved', favorites: user.favorites});
         });
 
-        app.listen(PORT, () => {
+        app.put('/favorites', authenticateToken, (req, res) => {
+            const username = req.user.name;
+            const { oldFrom, oldTo, newFrom, newTo } = req.body;
+            const user = users[username];
+
+            const fav = user.favorites.find(f => f.from === oldFrom && f.to === oldTo);
+            if (fav) {
+                fav.from = newFrom;
+                fav.to = newTo;
+                return res.json({ message: 'Favorite updated', favorites: user.favorites });
+            }
+
+            res.status(404).json({ error: 'Favorite not found' });
+        });
+
+        app.delete('/favorites', authenticateToken, (req, res) => {
+            const username = req.user.name;
+            const { from, to } = req.body;
+            const user = users[username];
+
+            const beforeLength = user.favorites.length;
+            user.favorites = user.favorites.filter(f => !(f.from === from && f.to === to));
+            const afterLength = user.favorites.length;
+
+            if (beforeLength === afterLength) {
+                return res.status(404).json({ error: 'Favorite not found' });
+            }
+
+            res.json({ message: 'Favorite deleted', favorites: user.favorites });
+        });
+
+
+app.listen(PORT, () => {
             console.log(`Server is listening on: http://localhost:${PORT}`);
         });
