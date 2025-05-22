@@ -17,7 +17,7 @@ const SECRET_KEY = process.env.JWT_SECRET;
 //});
 
 const path = require('path');
-app.use(express.static(path.join(__dirname, 'public/')));
+app.use(express.static(path.join(__dirname, '..frontend/')));
 
 const bcrypt = require('bcrypt');
 const users = {};
