@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const refreshTokens = new Set();
 require('dotenv').config();
 
 const app = express();
@@ -121,95 +122,122 @@ app.get('/displayRates', async (req, res) => {
 
 
 
-        function authenticateToken(req, res, next) {
-            // Middleware to verify token
-            const token = req.headers['authorization']?.split(' ')[1];
-            if (!token) return res.sendStatus(401);
+function authenticateToken(req, res, next) {
+    // Middleware to verify token
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) return res.sendStatus(401);
 
-            jwt.verify(token, SECRET_KEY, (err, user) => {
-                if (err) return res.sendStatus(403);
-                req.user = user;
-                next();
-            });
-        }
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
 
-        app.post('/login', async (req, res) => {
-            const {username, password} = req.body;
-            const user = users[username];
-            if (!user) return res.status(400).json({error: 'User not found'});
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = users[username];
+    if (!user) return res.status(400).json({ error: 'User not found' });
 
-            const isValid = await bcrypt.compare(password, user.passwordHash);
-            if (!isValid) return res.status(401).json({error: 'Invalid password'});
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+       if (!isValid) return res.status(401).json({ error: 'Invalid password' });
 
-            const token = jwt.sign({name: username}, SECRET_KEY, {expiresIn: '1h'});
-            res.json({token});
-        });
+    const accessToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '1h' });
+    const refreshToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '7d' });
+
+    refreshTokens.add(refreshToken); // Store refresh token
+
+    res.json({ accessToken, refreshToken });
+});
+
+app.post('/refresh', (req, res) => {
+    const { refreshToken } = req.body;
+    if (!refreshToken || !refreshTokens.has(refreshToken)) {
+        return res.status(403).json({ error: 'Invalid or missing refresh token' });
+    }
+    try {
+        const payload = jwt.verify(refreshToken, SECRET_KEY);
+        const newAccessToken = jwt.sign({ name: payload.name }, SECRET_KEY, { expiresIn: '1h' });
+        res.json({ accessToken: newAccessToken });
+    } catch (err) {
+        res.status(403).json({ error: 'Invalid refresh token' });
+       }
+});
+
+app.post('/logout', authenticateToken, (req, res) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+    const { refreshToken } = req.body;
+
+    tokenBlacklist.add(token);
+    if (refreshToken) refreshTokens.delete(refreshToken);
+
+    res.json({ message: 'Logged out successfully' });
+});
 
 
-        app.get('/protected-route', authenticateToken, (req, res) => {
-            res.json({message: 'Hello, ${req.user.name}! You have accessed a protected route.'});
-        });
+app.get('/protected-route', authenticateToken, (req, res) => {
+    res.json({message: 'Hello, ${req.user.name}! You have accessed a protected route.'});
+});
 
-        app.post('/register', async (req, res) => {
-            const {username, password} = req.body;
-            if (users[username]) {
-                return res.status(400).json({error: 'User already exists'});
-            }
+app.post('/register', async (req, res) => {
+    const {username, password} = req.body;
+    if (users[username]) {
+        return res.status(400).json({error: 'User already exists'});
+    }
 
-            const passwordHash = await bcrypt.hash(password, 10);
-            users[username] = {passwordHash, favorites: []};
-            res.json({message: 'User registered successfully'});
-        });
+    const passwordHash = await bcrypt.hash(password, 10);
+    users[username] = {passwordHash, favorites: []};
+    res.json({message: 'User registered successfully'});
+});
 
-        app.get('/favorites', authenticateToken, (req, res) => {
-            const username = req.user.name;
-            const user = users[username];
-            res.json({favorites: user.favorites});
-        });
+app.get('/favorites', authenticateToken, (req, res) => {
+    const username = req.user.name;
+    const user = users[username];
+    res.json({favorites: user.favorites});
+});
 
-        app.post('/favorites', authenticateToken, (req, res) => {
-            const username = req.user.name;
-            const {from, to} = req.body;
-            const user = users[username];
+app.post('/favorites', authenticateToken, (req, res) => {
+    const username = req.user.name;
+    const {from, to} = req.body;
+    const user = users[username];
 
-            const exists = user.favorites.find(fav => fav.from === from && fav.to === to);
-            if (!exists) user.favorites.push({from, to});
+    const exists = user.favorites.find(fav => fav.from === from && fav.to === to);
+    if (!exists) user.favorites.push({from, to});
 
-            res.json({message: 'Favorite saved', favorites: user.favorites});
-        });
+    res.json({message: 'Favorite saved', favorites: user.favorites});
+});
 
-        app.put('/favorites', authenticateToken, (req, res) => {
-            const username = req.user.name;
-            const { oldFrom, oldTo, newFrom, newTo } = req.body;
-            const user = users[username];
+app.put('/favorites', authenticateToken, (req, res) => {
+    const username = req.user.name;
+    const { oldFrom, oldTo, newFrom, newTo } = req.body;
+    const user = users[username];
 
-            const fav = user.favorites.find(f => f.from === oldFrom && f.to === oldTo);
-            if (fav) {
-                fav.from = newFrom;
-                fav.to = newTo;
-                return res.json({ message: 'Favorite updated', favorites: user.favorites });
-            }
+    const fav = user.favorites.find(f => f.from === oldFrom && f.to === oldTo);
+    if (fav) {
+        fav.from = newFrom;
+        fav.to = newTo;
+        return res.json({ message: 'Favorite updated', favorites: user.favorites });
+    }
 
-            res.status(404).json({ error: 'Favorite not found' });
-        });
+    res.status(404).json({ error: 'Favorite not found' });
+});
 
-        app.delete('/favorites', authenticateToken, (req, res) => {
-            const username = req.user.name;
-            const { from, to } = req.body;
-            const user = users[username];
+app.delete('/favorites', authenticateToken, (req, res) => {
+    const username = req.user.name;
+    const { from, to } = req.body;
+    const user = users[username];
 
-            const beforeLength = user.favorites.length;
-            user.favorites = user.favorites.filter(f => !(f.from === from && f.to === to));
-            const afterLength = user.favorites.length;
+    const beforeLength = user.favorites.length;
+    user.favorites = user.favorites.filter(f => !(f.from === from && f.to === to));
+    const afterLength = user.favorites.length;
 
-            if (beforeLength === afterLength) {
-                return res.status(404).json({ error: 'Favorite not found' });
-            }
+    if (beforeLength === afterLength) {
+        return res.status(404).json({ error: 'Favorite not found' });
+    }
 
-            res.json({ message: 'Favorite deleted', favorites: user.favorites });
-        });
-
+    res.json({ message: 'Favorite deleted', favorites: user.favorites });
+});
 
 app.listen(PORT, () => {
-            console.log(`Server is listening on: http://localhost:${PORT}`);
-        });
+    console.log(`Server is listening on: http://localhost:${PORT}`);
+});

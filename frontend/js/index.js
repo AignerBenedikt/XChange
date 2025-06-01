@@ -8,6 +8,39 @@ async function initApp() {
     await loadCurrencies();
 }
 
+async function getValidToken() {
+    let token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expiry = payload.exp * 1000;
+        if (Date.now() > expiry) {
+            const refreshToken = localStorage.getItem('refreshToken');
+            const res = await fetch('http://localhost:3000/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('token', data.accessToken);
+                return data.accessToken;
+            } else {
+                console.error('Refresh failed:', data.error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken');
+                return null;
+            }
+        }
+        return token;
+    } catch (err) {
+        console.error('Token parse error:', err);
+        return null;
+    }
+}
+
 async function loadCurrencies() {
     const fromCurrencyInput = document.getElementById('from-currency');
     const toCurrencyInput = document.getElementById('to-currency');
@@ -15,7 +48,7 @@ async function loadCurrencies() {
     const toCurrencyDropdown = document.getElementById('to-currency-dropdown');
 
     try {
-        const token = localStorage.getItem('token');
+        const token = await getValidToken();
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
         const response = await fetch('http://localhost:3000/currencies', { headers });
@@ -74,7 +107,7 @@ async function loadCurrencies() {
             const params = new URLSearchParams({ from: fromCurrency, to: toCurrency, amount });
 
             try {
-                const token = localStorage.getItem('token');
+                const token = await getValidToken();
                 const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
                 const response = await fetch('http://localhost:3000/convert?' + params.toString(), { headers });
@@ -112,7 +145,7 @@ function bindFavoriteEvent() {
     favoriteBtn.addEventListener('click', async () => {
         const fromInput = document.getElementById('from-currency').value;
         const toInput = document.getElementById('to-currency').value;
-        const token = localStorage.getItem('token');
+        const token = await getValidToken();
 
         if (!token) {
             alert('Please login first');
@@ -160,8 +193,9 @@ function bindAuthEvents() {
 
             const data = await res.json();
             if (res.ok) {
-                localStorage.setItem('token', data.token);
+                localStorage.setItem('token', data.accessTokentoken);
                 localStorage.setItem('username', username);
+                localStorage.setItem('refreshToken', data.refreshToken);
                 updateAuthUI();
                 await loadCurrencies();
             } else {
@@ -196,8 +230,21 @@ function bindAuthEvents() {
         }
     });
 
-    document.getElementById('logout-btn').addEventListener('click', () => {
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        const accessToken = localStorage.getItem('token');
+        const refreshToken = localStorage.getItem('refreshToken');
+
+        await fetch('http://localhost:3000/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({ refreshToken })
+       });
+
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('username');
         updateAuthUI();
         location.reload();
