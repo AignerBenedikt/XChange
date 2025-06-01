@@ -12,13 +12,14 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET;
 
-// Welcome message
-//app.get('/', (req, res) => {
-   // res.send('Welcome to the currency converter Xchange. Follow /convert?from=USD&to=EUR&amount=100');
-//});
+//Welcome message
+app.get('/', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 const path = require('path');
-app.use(express.static(path.join(__dirname, '..frontend/')));
+const frontendPath = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendPath));
 
 const bcrypt = require('bcrypt');
 const users = {};
