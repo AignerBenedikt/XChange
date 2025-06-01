@@ -9,7 +9,8 @@ header {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
     grid-area: header;
     height: 100%;
     margin-top: 10px;
@@ -21,7 +22,7 @@ body {
         "header header"
         "nav main"
         "footer footer";
-    grid-template-columns: minmax(192px, 256px) auto;
+    grid-template-columns: minmax(192px, 15%) auto;
     grid-template-rows: auto 1fr auto;
     min-height: 100vh;
     font-family: Inter, sans-serif;
@@ -50,8 +51,8 @@ footer {
 
 footer li {
     display: inline-block;
-    margin-top: 150px;
-    margin-right: 25px;
+    margin-top: 10vh;
+    margin-right: 1.5rem;
     list-style: none;
 }
 
@@ -95,10 +96,12 @@ h2 {
 }
 
 #logo {
-    width: 80px;
-    height: 80px;
+    width: 8vw;
+    max-width: 80px;
+    height: auto;
     margin-top: 10px;
-    margin-left: 40px;
+    margin-left: 5vw;
+    max-height: 80px;
 }
 
 .currency-box {
@@ -172,6 +175,7 @@ h2 {
     font-size: 2rem;
     cursor: pointer;
     user-select: none;
+    flex-shrink: 0;
 }
 
 .dropdown {
@@ -217,23 +221,23 @@ h2 {
     padding: 2rem;
     border-radius: 1.5rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 700px;
+    width: 90%;
+    max-width: 40rem;
     height: 100%;
     max-height: 500px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-right: 300px;
+    margin-right: 0;
 }
 
 button {
-    padding: 12px 20px;
+    padding: 0.75rem 1rem;
     background-color: #28a745;
     color: #fff;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
+    border-radius: 0.5rem;
+    font-size: 1rem;
     cursor: pointer;
     width: 100%;
     transition: background-color 0.3s;
@@ -246,26 +250,6 @@ button:hover {
 .conversion-result {
     font-size: 24px;
     color: #28a745;
-}
-
-.dropdown {
-    border: 1px solid #ccc;
-    max-height: 150px;
-    overflow-y: auto;
-    display: none;
-    position: absolute;
-    width: 200px;
-    background-color: white;
-    z-index: 1;
-}
-
-.dropdown div {
-    padding: 8px;
-    cursor: pointer;
-}
-
-.dropdown div:hover {
-    background-color: #f0f0f0;
 }
 
 #from-currency {
@@ -284,7 +268,7 @@ button:hover {
 }
 
 #result {
-    margin-left: 130px;
+    margin-left: 0;
 }
 
 #auth-controls {
@@ -325,4 +309,138 @@ button:hover {
 #welcome-user {
     font-weight: bold;
     color: black;
+}
+
+/* ---------- Responsive Styles ---------- */
+
+@media (max-width: 768px) {
+    body {
+        grid-template-areas:
+            "header"
+            "nav"
+            "main"
+            "footer";
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+    }
+
+    nav {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    nav ul li {
+        display: inline-block;
+        margin: 0 1rem;
+    }
+
+    main {
+        display: flex;
+        justify-content: center;
+        padding: 0 2rem;
+    }
+
+    .converter-box {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    .conversion-result {
+        font-size: 16px;
+        color: #28a745;
+    }
+
+    footer {
+        margin-top: 6rem;
+
+    }
+
+    #campus-link{
+        text-align: center;
+    }
+
+    footer ul {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem 2rem;
+        padding: 1rem;
+        justify-items: center;
+        list-style: none;
+    }
+
+    footer li {
+        text-align: center;
+        margin: 0;
+    }
+}
+
+
+/* Smartphones */
+@media (max-width: 480px) {
+    body {
+        grid-template-areas:
+            "header"
+            "nav"
+            "main"
+            "footer";
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    nav {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    nav ul li {
+        display: inline-block;
+        margin: 0 1rem;
+    }
+
+    main {
+        display: flex;
+        justify-content: center;
+        padding: 0 2rem;
+    }
+
+    .converter-box {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    .conversion-result {
+        font-size: 14px;
+        color: #28a745;
+    }
+
+    footer {
+        margin-top: 6rem;
+
+    }
+
+    #campus-link{
+        text-align: center;
+    }
+
+    footer ul {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem 2rem;
+        padding: 1rem;
+        justify-items: center;
+        list-style: none;
+    }
+
+    footer li {
+        text-align: center;
+        margin: 0;
+    }
 }
