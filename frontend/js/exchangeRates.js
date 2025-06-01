@@ -94,3 +94,32 @@ async function updateExchangeResult() {
         resultEl.textContent = 'Fehler beim Laden des Wechselkurses.';
     }
 }
+//  NEW: Generate conversion link NEW
+function setupGenerateLink() {
+    const linkBtn = document.getElementById('generate-link-btn');
+    const output = document.getElementById('generated-link');
+
+    if (!linkBtn || !output) return;
+
+    linkBtn.addEventListener('click', async () => {
+        const from = document.getElementById('base-selector').value;
+        const to = document.getElementById('target-selector').value;
+        const amount = document.getElementById('amount-input').value;
+
+        try {
+            const response = await fetch('http://localhost:3000/favorites/link', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ from, to, amount }),
+            });
+
+            const { link } = await response.json();
+            output.textContent = link;
+        } catch (err) {
+            console.error('Error generating link:', err);
+            output.textContent = 'Error creating link';
+        }
+    });
+}

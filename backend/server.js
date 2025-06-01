@@ -2,8 +2,14 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const bcrypt = require('bcrypt');
 const refreshTokens = new Set();
 require('dotenv').config();
+//Swagger 
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+//
 
 const app = express();
 app.use(cors());
@@ -17,12 +23,78 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-const path = require('path');
 const frontendPath = path.join(__dirname, '..', 'frontend');
 app.use(express.static(frontendPath));
 
-const bcrypt = require('bcrypt');
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Xchange API',
+      version: '1.0.0',
+      description: 'API for currency conversion and user management ',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+ },
+    },
+    security: [{ bearerAuth: [] }],
+  },
+  apis: ['./server.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+////
+// Swagger endpoint
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+///
+
 const users = {};
+
+// Swagger convert
+/**
+ * @swagger
+ * /convert:
+ *   get:
+ *     summary: Convierte una cantidad de una moneda a otra
+ *     parameters:
+ *       - in: query
+ *         name: from
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "Código de moneda origen (ej: USD)"
+ *       - in: query
+ *         name: to
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "Código de moneda destino (ej: EUR)"
+ *       - in: query
+ *         name: amount
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: "Cantidad a convertir"
+ *     responses:
+ *       200:
+ *         description: "Conversión exitosa"
+ *       400:
+ *         description: "Parámetros faltantes"
+ *       500:
+ *         description: "Error interno"
+ */
 
 // Endpoint currency converter
 app.get('/convert', async (req, res) => {
@@ -58,6 +130,39 @@ app.get('/convert', async (req, res) => {
     }
 });
 
+//swagger currencies
+/**
+ * @swagger
+ * /convert:
+ *   get:
+ *     summary: Convert an amount from one currency to another
+ *     parameters:
+ *       - in: query
+ *         name: from
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Currency code to convert from (e.g., USD)
+ *       - in: query
+ *         name: to
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Currency code to convert to (e.g., EUR)
+ *       - in: query
+ *         name: amount
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Amount to convert
+ *     responses:
+ *       200:
+ *         description: Conversion successful
+ *       400:
+ *         description: Missing parameters
+ *       500:
+ *         description: Server error
+ */
 
 // Endpoint to obtain available currencies
 app.get('/currencies', async (req, res) => {
@@ -135,6 +240,33 @@ function authenticateToken(req, res, next) {
     });
 }
 
+//swagger login
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login with a user account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: User not found
+ *       401:
+ *         description: Incorrect password
+ */
+//
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = users[username];
@@ -203,7 +335,11 @@ app.post('/favorites', authenticateToken, (req, res) => {
     const user = users[username];
 
     const exists = user.favorites.find(fav => fav.from === from && fav.to === to);
-    if (!exists) user.favorites.push({from, to});
+    if (exists) {
+        exists.count += 1;
+    } else {
+        user.favorites.push({ from, to, count: 1});
+    }
 
     res.json({message: 'Favorite saved', favorites: user.favorites});
 });
@@ -237,6 +373,33 @@ app.delete('/favorites', authenticateToken, (req, res) => {
     }
 
     res.json({ message: 'Favorite deleted', favorites: user.favorites });
+});
+
+app.get('/favorites/top', authenticateToken, (req, res) => {
+    const username = req.user.name;
+    const user = users[username];
+
+    const topFavorites = [...user.favorites]
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3);
+
+    res.json({ topFavorites });
+});
+
+// NEW Generate dynamic conversion link
+app.get('/favorites/link', authenticateToken, (req, res) => {
+    const { from, to } = req.query;
+
+    if (!from || !to) {
+        return res.status(400).json({ error: 'Missing from or to parameters' });
+    }
+
+    const link = `http://localhost:${PORT}/convert?from=${from}&to=${to}&amount=1`;
+
+    res.json({
+        message: '🔗 Use this link to view the real-time conversion',
+        link
+    });
 });
 
 app.listen(PORT, () => {
