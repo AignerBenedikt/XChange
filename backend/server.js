@@ -345,6 +345,29 @@ app.post('/favorites', authenticateToken, (req, res) => {
     respond(req, res,{message: 'Favorite saved', favorites: user.favorites});
 });
 
+app.patch('/favorites', authenticateToken, (req, res) => {
+    const username = req.user.name;
+    const { from, to, updates } = req.body;
+
+    const user = users[username];
+    const fav = user.favorites.find(f => f.from === from && f.to === to);
+
+    if (!fav) {
+        return respond(req, res.status(404), { error: 'Favorite not found' });
+    }
+
+    if (updates?.from) fav.from = updates.from;
+    if (updates?.to) fav.to = updates.to;
+    if (updates?.count) fav.count = updates.count;
+
+    respond(req, res, {
+        message: 'Favorite patched successfully',
+        favorite: fav,
+        favorites: user.favorites
+    });
+});
+
+
 app.put('/favorites', authenticateToken, (req, res) => {
     const username = req.user.name;
     const { oldFrom, oldTo, newFrom, newTo } = req.body;

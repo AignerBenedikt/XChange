@@ -53,16 +53,23 @@ function renderFavorites(favorites) {
     });
 }
 
-async function updateFavorite(oldFrom, oldTo, newFrom, newTo) {
+async function updateFavorite(from, to, newFrom, newTo) {
     const token = localStorage.getItem('token');
 
     const response = await fetch('http://localhost:3000/favorites', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ oldFrom, oldTo, newFrom, newTo })
+        body: JSON.stringify({
+            from,
+            to,
+            updates: {
+                from: newFrom,
+                to: newTo
+            }
+        })
     });
 
     const data = await response.json();
