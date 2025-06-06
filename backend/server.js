@@ -4,6 +4,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const bcrypt = require('bcrypt');
+const respond = require('./utils/respond');
 const refreshTokens = new Set();
 require('dotenv').config();
 //Swagger 
@@ -101,7 +102,7 @@ app.get('/convert', async (req, res) => {
     const { from, to, amount } = req.query;
 
     if (!from || !to || !amount) {
-        return res.status(400).json({ error: 'Missing parameters: from, to, amount' });
+        return respond(req, res.status(400), { error: 'Missing parameters: from, to, amount' });
     }
 
     try {
@@ -110,10 +111,10 @@ app.get('/convert', async (req, res) => {
         const data = response.data;
 
         if (data.result !== "success") {
-            return res.status(500).json({ error: 'Error getting data from the ExchangeRate API' });
+            return respond(req, res.status(500), { error: 'Error getting data from the ExchangeRate API' });
         }
 
-        res.json({
+        respond(req, res, {
             message: "this is your conversion",
             data: {
                 from: data.base_code,
@@ -126,7 +127,7 @@ app.get('/convert', async (req, res) => {
         });
     } catch (error) {
         console.error("Error in the API request:", error.message);
-        res.status(500).json({ error: 'Internal error in getting the exchange rate' });
+        respond(req, res.status(500), { error: 'Internal error in getting the exchange rate' });
     }
 });
 
@@ -176,32 +177,32 @@ app.get('/currencies', async (req, res) => {
         if (code) {
             const result = codes.find(item => item[0].toUpperCase() === code.toUpperCase());
             if (result) {
-                return res.json({ message: `🧾 The name of the currency for  ${code}`, name: result[1] });
+                return respond(req, res, { message: `🧾 The name of the currency for  ${code}`, name: result[1] });
             } else {
-                return res.status(404).json({ error: 'currency code not found' });
+                return respond(req, res.status(404), { error: 'currency code not found' });
             }
         }
 
         if (name) {
             const result = codes.find(item => item[1].toLowerCase() === name.toLowerCase());
             if (result) {
-                return res.json({ message: `the code of the currency for:   "${name}`, code: result[0] });
+                return respond(req, res,{ message: `the code of the currency for:   "${name}`, code: result[0] });
             } else {
-                return res.status(404).json({ error: 'Name not found' });
+                return respond(req, res.status(404), { error: 'Name not found' });
             }
         }
 
-        res.json({ currencies: codes });
+        respond(req, res, { currencies: codes });
     } catch (error) {
         console.error("Fail:", error.message);
-        res.status(500).json({ error: 'It is not possible to show the currencies' });
+        respond(req, res.status(500), { error: 'It is not possible to show the currencies' });
     }
 });
 
 app.get('/displayRates', async (req, res) => {
     const base = req.query.base;
     if (!base) {
-        return res.status(400).json({ error: 'Missing base currency' });
+        return respond(req, res.status(400), { error: 'Missing base currency' });
     }
 
     try {
@@ -210,10 +211,10 @@ app.get('/displayRates', async (req, res) => {
         const data = response.data;
 
         if (data.result !== "success") {
-            return res.status(500).json({ error: 'Error getting data from the ExchangeRate API' });
+            return respond(req, res.status(500),{ error: 'Error getting data from the ExchangeRate API' });
         }
 
-        res.json({
+        respond(req, res,{
             data: {
                 base_currency: data.base_code,
                 conversion_rates: data.conversion_rates,
@@ -222,7 +223,7 @@ app.get('/displayRates', async (req, res) => {
         });
     } catch (error) {
         console.error("Error in the API request:", error.message);
-        res.status(500).json({ error: 'Internal error in getting the exchange rate' });
+        respond(req, res.status(500),{ error: 'Internal error in getting the exchange rate' });
     }
 });
 
@@ -270,30 +271,30 @@ function authenticateToken(req, res, next) {
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = users[username];
-    if (!user) return res.status(400).json({ error: 'User not found' });
+    if (!user) return respond(req, res.status(400),{ error: 'User not found' });
 
     const isValid = await bcrypt.compare(password, user.passwordHash);
-       if (!isValid) return res.status(401).json({ error: 'Invalid password' });
+       if (!isValid) return respond(req, res.status(401), { error: 'Invalid password' });
 
     const accessToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '7d' });
 
     refreshTokens.add(refreshToken); // Store refresh token
 
-    res.json({ accessToken, refreshToken });
+    respond(req, res,{ accessToken, refreshToken });
 });
 
 app.post('/refresh', (req, res) => {
     const { refreshToken } = req.body;
     if (!refreshToken || !refreshTokens.has(refreshToken)) {
-        return res.status(403).json({ error: 'Invalid or missing refresh token' });
+        return respond(req, res.status(403),{ error: 'Invalid or missing refresh token' });
     }
     try {
         const payload = jwt.verify(refreshToken, SECRET_KEY);
         const newAccessToken = jwt.sign({ name: payload.name }, SECRET_KEY, { expiresIn: '1h' });
-        res.json({ accessToken: newAccessToken });
+        respond(req, res,{ accessToken: newAccessToken });
     } catch (err) {
-        res.status(403).json({ error: 'Invalid refresh token' });
+        respond(req, res.status(403),{ error: 'Invalid refresh token' });
        }
 });
 
@@ -304,29 +305,29 @@ app.post('/logout', authenticateToken, (req, res) => {
     tokenBlacklist.add(token);
     if (refreshToken) refreshTokens.delete(refreshToken);
 
-    res.json({ message: 'Logged out successfully' });
+    respond(req, res,{ message: 'Logged out successfully' });
 });
 
 
 app.get('/protected-route', authenticateToken, (req, res) => {
-    res.json({message: 'Hello, ${req.user.name}! You have accessed a protected route.'});
+    respond(req, res,{message: 'Hello, ${req.user.name}! You have accessed a protected route.'});
 });
 
 app.post('/register', async (req, res) => {
     const {username, password} = req.body;
     if (users[username]) {
-        return res.status(400).json({error: 'User already exists'});
+        return respond(req, res.status(400),{error: 'User already exists'});
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
     users[username] = {passwordHash, favorites: []};
-    res.json({message: 'User registered successfully'});
+    respond(req, res,{message: 'User registered successfully'});
 });
 
 app.get('/favorites', authenticateToken, (req, res) => {
     const username = req.user.name;
     const user = users[username];
-    res.json({favorites: user.favorites});
+    respond(req, res,{favorites: user.favorites});
 });
 
 app.post('/favorites', authenticateToken, (req, res) => {
@@ -341,7 +342,7 @@ app.post('/favorites', authenticateToken, (req, res) => {
         user.favorites.push({ from, to, count: 1});
     }
 
-    res.json({message: 'Favorite saved', favorites: user.favorites});
+    respond(req, res,{message: 'Favorite saved', favorites: user.favorites});
 });
 
 app.put('/favorites', authenticateToken, (req, res) => {
@@ -353,10 +354,10 @@ app.put('/favorites', authenticateToken, (req, res) => {
     if (fav) {
         fav.from = newFrom;
         fav.to = newTo;
-        return res.json({ message: 'Favorite updated', favorites: user.favorites });
+        return respond(req, res,{ message: 'Favorite updated', favorites: user.favorites });
     }
 
-    res.status(404).json({ error: 'Favorite not found' });
+    respond(req, res.status(404),{ error: 'Favorite not found' });
 });
 
 app.delete('/favorites', authenticateToken, (req, res) => {
@@ -369,10 +370,10 @@ app.delete('/favorites', authenticateToken, (req, res) => {
     const afterLength = user.favorites.length;
 
     if (beforeLength === afterLength) {
-        return res.status(404).json({ error: 'Favorite not found' });
+        return respond(req, res.status(404),{ error: 'Favorite not found' });
     }
 
-    res.json({ message: 'Favorite deleted', favorites: user.favorites });
+    respond(req, res,{ message: 'Favorite deleted', favorites: user.favorites });
 });
 
 app.get('/favorites/top', authenticateToken, (req, res) => {
@@ -383,7 +384,7 @@ app.get('/favorites/top', authenticateToken, (req, res) => {
         .sort((a, b) => b.count - a.count)
         .slice(0, 3);
 
-    res.json({ topFavorites });
+    respond(req, res,{ topFavorites });
 });
 
 // NEW Generate dynamic conversion link
@@ -391,12 +392,12 @@ app.get('/favorites/link', authenticateToken, (req, res) => {
     const { from, to } = req.query;
 
     if (!from || !to) {
-        return res.status(400).json({ error: 'Missing from or to parameters' });
+        return respond(req, res.status(400),{ error: 'Missing from or to parameters' });
     }
 
     const link = `http://localhost:${PORT}/convert?from=${from}&to=${to}&amount=1`;
 
-    res.json({
+    respond(req, res, {
         message: '🔗 Use this link to view the real-time conversion',
         link
     });

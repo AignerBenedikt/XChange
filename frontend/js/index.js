@@ -4,7 +4,7 @@ async function initApp() {
     updateAuthUI();
     bindAuthEvents();
     bindSwapEvent();
-    bindFavoriteEvent();
+    //bindFavoriteEvent();
     await loadCurrencies();
 }
 
@@ -139,7 +139,7 @@ function bindSwapEvent() {
         });
     }
 }
-function bindFavoriteEvent() {
+/* function bindFavoriteEvent() {
     const favoriteBtn = document.getElementById('add-favorite-btn');
 
     favoriteBtn.addEventListener('click', async () => {
@@ -178,7 +178,7 @@ function bindFavoriteEvent() {
         }
     });
 }
-
+*/
 function bindAuthEvents() {
     document.getElementById('login-btn').addEventListener('click', async () => {
         const username = document.getElementById('username').value;
@@ -193,7 +193,7 @@ function bindAuthEvents() {
 
             const data = await res.json();
             if (res.ok) {
-                localStorage.setItem('token', data.accessTokentoken);
+                localStorage.setItem('token', data.accessToken);
                 localStorage.setItem('username', username);
                 localStorage.setItem('refreshToken', data.refreshToken);
                 updateAuthUI();
