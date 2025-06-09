@@ -130,6 +130,7 @@ app.get('/convert', async (req, res) => {
         respond(req, res.status(500), { error: 'Internal error in getting the exchange rate' });
     }
 });
+////rest 2
 app.get('/convert2', async (req, res) => {
     const { from, to, amount } = req.query;
 
@@ -161,9 +162,40 @@ app.get('/convert2', async (req, res) => {
         respond(req, res.status(500), { error: 'Error fetching data from Frankfurter API' });
     }
 });
+////
+/////rest 3
+// Backup endpoint using exchangerate.host
+app.get('/convert3', async (req, res) => {
+    const { from, to, amount } = req.query;
 
+    if (!from || !to || !amount) {
+        return respond(req, res.status(400), { error: 'Missing parameters: from, to, amount' });
+    }
 
-//swagger 
+    try {
+        const url = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`;
+        const response = await axios.get(url);
+        const data = response.data;
+
+        respond(req, res, {
+            message: "Conversion with exchangerate.host",
+            data: {
+                from: data.query.from,
+                to: data.query.to,
+                amount: data.query.amount,
+                converted: data.result,
+                conversion_rate: data.info.rate,
+                date: data.date
+            }
+        });
+    } catch (error) {
+        console.error("Error using exchangerate.host:", error.message);
+        respond(req, res.status(500), { error: 'Internal error during backup conversion' });
+    }
+});
+////
+
+//swagger convert
 /**
  * @swagger
  * /convert:
