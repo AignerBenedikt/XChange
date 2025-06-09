@@ -11,7 +11,12 @@
     <a href="index.html" id="logo-link"><img src="resources/XChange.png" alt="XChange" id="logo"></a>
     <h1>Currency Conversion</h1>
     <div id="user-info" style="display: none;">
+        <span id="welcome-user">Welcome, User</span>
         <button id="logout-btn">Logout</button>
+    </div>
+    <div id="auth-buttons">
+        <button id="open-login">Login</button>
+        <button id="open-register">Register</button>
     </div>
 </header>
 <nav>
@@ -52,19 +57,21 @@
                 <h3>Converted Amount: <span id="result">-</span></h3>
             </div>
         </div>
-    </div>
-    <div id="auth-controls">
-        <!-- Login Form -->
-        <div id="login-section">
-            <label for="username">Username:</label>
-            <input type="text" id="username" placeholder="Enter username">
-            <label for="password">Password:</label>
-            <input type="password" id="password" placeholder="Enter password">
-            <button id="login-btn">Login</button>
-            <button id="register-btn">Register</button>
-        </div>
-    </div>    
+    </div>   
 </main>
+
+    <!-- Auth Modal -->
+<div id="auth-modal" class="hidden">
+    <div class="modal-content">
+        <span class="close-btn" id="close-modal">&times;</span>
+        <h2 id="auth-title">Login</h2>
+        <label for="modal-username">Username:</label>
+        <input type="text" id="modal-username" placeholder="Enter username">
+        <label for="modal-password">Password:</label>
+        <input type="password" id="modal-password" placeholder="Enter password">
+        <button id="submit-auth">Login</button>
+    </div>
+</div>
 
 <footer>
     <ul>

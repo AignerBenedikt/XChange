@@ -180,12 +180,40 @@ function bindSwapEvent() {
 }
 */
 function bindAuthEvents() {
-    document.getElementById('login-btn').addEventListener('click', async () => {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+    const modal = document.getElementById('auth-modal');
+    const authTitle = document.getElementById('auth-title');
+    const submitAuth = document.getElementById('submit-auth');
+    const closeModal = document.getElementById('close-modal');
+
+    // Show login modal
+    document.getElementById('open-login').addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        authTitle.textContent = 'Login';
+        submitAuth.textContent = 'Login';
+        submitAuth.dataset.mode = 'login';
+    });
+
+    // Show register modal
+    document.getElementById('open-register').addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        authTitle.textContent = 'Register';
+        submitAuth.textContent = 'Register';
+        submitAuth.dataset.mode = 'register';
+    });
+
+    // Close modal
+    closeModal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    // Handle login or registration
+    submitAuth.addEventListener('click', async () => {
+        const username = document.getElementById('modal-username').value;
+        const password = document.getElementById('modal-password').value;
+        const mode = submitAuth.dataset.mode; // 'login' or 'register'
 
         try {
-            const res = await fetch('http://localhost:3000/login', {
+            const res = await fetch(`http://localhost:3000/${mode}`, {
                 method: 'POST',
                 body: JSON.stringify({ username, password }),
                 headers: { 'Content-Type': 'application/json' }
@@ -194,54 +222,37 @@ function bindAuthEvents() {
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem('token', data.accessToken);
-                localStorage.setItem('username', username);
                 localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('username', username);
                 updateAuthUI();
+                modal.classList.add('hidden');
                 await loadCurrencies();
             } else {
-                alert(data.error || 'Login failed');
+                alert(data.error || `${mode} failed`);
             }
         } catch (err) {
-            console.error('Login error:', err);
-            alert('Login request failed');
+            console.error(`${mode} error:`, err);
+            alert(`${mode} request failed`);
         }
     });
 
-    document.getElementById('register-btn').addEventListener('click', async () => {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        try {
-            const res = await fetch('http://localhost:3000/register', {
-                method: 'POST',
-                body: JSON.stringify({ username, password }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                alert('Registration successful! You can now log in.');
-            } else {
-                alert(data.error || 'Registration failed');
-            }
-        } catch (err) {
-            console.error('Register error:', err);
-            alert('Registration request failed');
-        }
-    });
-
+    // Logout button
     document.getElementById('logout-btn').addEventListener('click', async () => {
         const accessToken = localStorage.getItem('token');
         const refreshToken = localStorage.getItem('refreshToken');
 
-        await fetch('http://localhost:3000/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({ refreshToken })
-       });
+        try {
+            await fetch('http://localhost:3000/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ refreshToken })
+            });
+        } catch (err) {
+            console.warn('Logout request failed (offline or token expired).');
+        }
 
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
@@ -255,16 +266,46 @@ function updateAuthUI() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
 
-    const loginSection = document.getElementById('login-section');
     const userInfo = document.getElementById('user-info');
+    const authButtons = document.getElementById('auth-buttons');
     const welcomeUser = document.getElementById('welcome-user');
 
     if (token) {
-        loginSection.style.display = 'none';
-        userInfo.style.display = 'block';
-        if (welcomeUser) welcomeUser.textContent = username || 'User';
+        authButtons.style.display = 'none';
+        userInfo.style.display = 'flex';
+        if (welcomeUser) {
+            welcomeUser.textContent = `Welcome, ${username || 'User'}`;
+        }
     } else {
-        loginSection.style.display = 'block';
+        authButtons.style.display = 'flex';
         userInfo.style.display = 'none';
     }
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('open-login');
+  const registerBtn = document.getElementById('open-register');
+  const modal = document.getElementById('auth-modal');
+  const closeModal = document.getElementById('close-modal');
+  const submitAuth = document.getElementById('submit-auth');
+  const authTitle = document.getElementById('auth-title');
+
+  loginBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+    authTitle.textContent = 'Login';
+    submitAuth.textContent = 'Login';
+    submitAuth.dataset.mode = 'login';
+  });
+
+  registerBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+    authTitle.textContent = 'Register';
+    submitAuth.textContent = 'Register';
+    submitAuth.dataset.mode = 'register';
+  });
+
+  closeModal.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+});
