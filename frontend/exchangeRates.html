@@ -16,13 +16,25 @@
     </ul>
 </nav>
 <main>
-    <label for="base-selector">Base Currency</label>
-    <select id="base-selector"></select>
 
-    <label for="target-selector">Show rate of:</label>
-    <select id="target-selector"></select>
+    <div class="currency-container">
+        <label for="base-selector">Base Currency</label>
+        <div class="currency-dropdown">
+            <input type="text" id="base-selector" placeholder="e.g. USD" />
+            <div id="base-selector-dropdown" class="dropdown"></div>
+        </div>
 
-    <p id="exchange-result">-</p>
+        <label for="target-selector">Target Currency</label>
+        <div class="currency-dropdown">
+            <input type="text" id="target-selector" placeholder="e.g. EUR" />
+            <div id="target-selector-dropdown" class="dropdown"></div>
+        </div>
+        <div id="exchange-result" class="result-box">-</div>
+        <button id="save-rate-btn">Add to Favorites</button>
+    </div>
+
+
+
 </main>
 <section aria-label="Wechselkurse">
     <h2>Top Currencies</h2>

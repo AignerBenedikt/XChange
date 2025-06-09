@@ -423,6 +423,33 @@ button:hover {
     border-bottom: 1px solid #eee;
 }
 
+.currency-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.dropdown div {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.dropdown div:hover {
+    background-color: #f0f0f0;
+}
+
 /* ---------- Responsive Styles ---------- */
 
 @media (max-width: 768px) {

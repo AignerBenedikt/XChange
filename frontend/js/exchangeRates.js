@@ -4,45 +4,19 @@ async function bindCurrencySelectors() {
     const baseSelector = document.getElementById('base-selector');
     const targetSelector = document.getElementById('target-selector');
 
-    baseSelector.addEventListener('change', async () => {
-        await loadExchangeRates();
-        await updateExchangeResult();
-    });
+    baseSelector.value = 'USD';
+    targetSelector.value = 'EUR';
 
-    targetSelector.addEventListener('change', updateExchangeResult);
+    await setupExchangeRateDropdowns();
 
-    // Currencies einmalig befüllen
-    await populateCurrencySelectors(baseSelector, targetSelector);
+    targetSelector.addEventListener('input', updateExchangeResult);
 }
 
-async function populateCurrencySelectors(baseSelector, targetSelector) {
-    try {
-        const response = await fetch('http://localhost:3000/displayRates?base=USD');
-        if (!response.ok) throw new Error('Konnte Währungen nicht laden');
 
-        const { data } = await response.json();
-        const currencies = Object.keys(data.conversion_rates);
-
-        currencies.forEach(code => {
-            const baseOption = new Option(code, code);
-            const targetOption = new Option(code, code);
-            baseSelector.add(baseOption);
-            targetSelector.add(targetOption);
-        });
-
-        baseSelector.value = 'USD';
-        targetSelector.value = 'EUR';
-
-        await loadExchangeRates();
-        await updateExchangeResult();
-    } catch (err) {
-        console.error('Fehler beim Laden der Währungen:', err);
-    }
-}
 
 async function loadExchangeRates() {
     const topCurrenciesList = document.getElementById('top-currencies-list');
-    const baseCurrency = document.getElementById('base-selector').value;
+    const baseCurrency = document.getElementById('base-selector').value.trim().toUpperCase();
 
     try {
         const response = await fetch(`http://localhost:3000/displayRates?base=${baseCurrency}`);
@@ -67,15 +41,83 @@ async function loadExchangeRates() {
     }
 }
 
+async function setupExchangeRateDropdowns() {
+    const baseInput = document.getElementById('base-selector');
+    const targetInput = document.getElementById('target-selector');
+    const baseDropdown = document.getElementById('base-selector-dropdown');
+    const targetDropdown = document.getElementById('target-selector-dropdown');
+
+
+    try {
+        const response = await fetch('http://localhost:3000/currencies');
+        if (!response.ok) throw new Error('Failed to fetch currencies');
+
+        const { currencies } = await response.json(); // [["USD", "US Dollar"], ...]
+
+        function setupDropdown(input, dropdown) {
+            input.addEventListener('input', () => {
+                const query = input.value.toLowerCase();
+                dropdown.innerHTML = '';
+                dropdown.style.display = 'none';
+
+                if (!query) return;
+
+                const filtered = currencies.filter(([code, name]) =>
+                    code.toLowerCase().includes(query) ||
+                    name.toLowerCase().includes(query)
+                );
+
+                if (filtered.length) dropdown.style.display = 'block';
+
+                filtered.forEach(([code, name]) => {
+                    const div = document.createElement('div');
+                    div.textContent = `${code} - ${name}`;
+                    div.onclick = (e) => {
+                        e.preventDefault();
+                        input.value = code;
+                        dropdown.style.display = 'none';
+
+                        setTimeout(() => {
+                            loadExchangeRates();
+                            updateExchangeResult();
+                        }, 100);
+                    };
+                    dropdown.appendChild(div);
+                });
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const code = input.value.trim().toUpperCase();
+                    const isValid = currencies.some(([currCode]) => currCode === code);
+
+                    if (isValid) {
+                        loadExchangeRates();
+                        updateExchangeResult();
+                    }
+                }, 200); // kurze Verzögerung für Dropdown-Klick
+            });
+        }
+
+        setupDropdown(baseInput, baseDropdown);
+        setupDropdown(targetInput, targetDropdown);
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.currency-dropdown')) {
+                baseDropdown.style.display = 'none';
+                targetDropdown.style.display = 'none';
+            }
+        });
+    } catch (err) {
+        console.error('Dropdown setup failed:', err);
+    }
+}
+
+
 async function updateExchangeResult() {
     const base = document.getElementById('base-selector').value;
     const target = document.getElementById('target-selector').value;
     const resultEl = document.getElementById('exchange-result');
-
-    if (base === target) {
-        resultEl.textContent = '1:1 – dieselbe Währung.';
-        return;
-    }
 
     try {
         const response = await fetch(`http://localhost:3000/displayRates?base=${base}`);

@@ -59,8 +59,15 @@
         </div>
         <div class="history-box">
             <h2>Historical Exchange Rates</h2>
-            <input type="text" id="history-from" placeholder="From (e.g. USD)">
-            <input type="text" id="history-to" placeholder="To (e.g. EUR)">
+            <div class="currency-dropdown">
+                <input type="text" id="history-from" placeholder="From (e.g. USD)">
+                <div id="history-from-dropdown" class="dropdown"></div>
+            </div>
+
+            <div class="currency-dropdown">
+                <input type="text" id="history-to" placeholder="To (e.g. EUR)">
+                <div id="history-to-dropdown" class="dropdown"></div>
+            </div>
             <input type="date" id="history-start">
             <input type="date" id="history-end">
             <button id="fetch-history-btn">See History</button>

@@ -318,6 +318,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+async function loadCurrenciesForHistory() {
+    const fromInput = document.getElementById('history-from');
+    const toInput = document.getElementById('history-to');
+    const fromDropdown = document.getElementById('history-from-dropdown');
+    const toDropdown = document.getElementById('history-to-dropdown');
+
+    try {
+        const response = await fetch('http://localhost:3000/currencies');
+        if (!response.ok) throw new Error('Failed to load currencies');
+
+        const { currencies } = await response.json(); // Format: [["USD", "US Dollar"], ...]
+
+        function setupDropdown(inputEl, dropdownEl) {
+            inputEl.addEventListener('input', () => {
+                const query = inputEl.value.toLowerCase();
+                dropdownEl.innerHTML = '';
+                dropdownEl.style.display = 'none';
+
+                if (!query) return;
+
+                const filtered = currencies.filter(([code, name]) =>
+                    code.toLowerCase().includes(query) ||
+                    name.toLowerCase().includes(query)
+                );
+
+                if (filtered.length) dropdownEl.style.display = 'block';
+
+                filtered.forEach(([code, name]) => {
+                    const div = document.createElement('div');
+                    div.textContent = `${code} - ${name}`;
+                    div.onclick = () => {
+                        inputEl.value = code;
+                        dropdownEl.style.display = 'none';
+                    };
+                    dropdownEl.appendChild(div);
+                });
+            });
+        }
+
+        setupDropdown(fromInput, fromDropdown);
+        setupDropdown(toInput, toDropdown);
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.currency-dropdown')) {
+                fromDropdown.style.display = 'none';
+                toDropdown.style.display = 'none';
+            }
+        });
+    } catch (err) {
+        console.error('Error loading currency dropdowns for history:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadCurrenciesForHistory();
+});
+
 async function fetchHistoricalRates() {
     const from = document.getElementById('history-from').value.trim().toUpperCase();
     const to = document.getElementById('history-to').value.trim().toUpperCase();
