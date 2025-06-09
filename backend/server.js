@@ -163,34 +163,41 @@ app.get('/convert2', async (req, res) => {
     }
 });
 ////
-/////rest 3
-// Backup endpoint using exchangerate.host
-app.get('/convert3', async (req, res) => {
-    const { from, to, amount } = req.query;
+//// api 3 history
+app.get('/history', async (req, res) => {
+    const { from, to, start, end } = req.query;
 
-    if (!from || !to || !amount) {
-        return respond(req, res.status(400), { error: 'Missing parameters: from, to, amount' });
+    if (!from || !to || !start || !end) {
+        return respond(req, res.status(400), {
+            error: 'Missing required parameters: from, to, start, end'
+        });
     }
 
     try {
-        const url = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`;
+        const url = `https://api.frankfurter.app/${start}..${end}?from=${from}&to=${to}`;
         const response = await axios.get(url);
-        const data = response.data;
+
+        const rates = response.data.rates;
+
+        if (!rates || Object.keys(rates).length === 0) {
+            return respond(req, res.status(404), {
+                error: 'No exchange rate data found for the given date range'
+            });
+        }
 
         respond(req, res, {
-            message: "Conversion with exchangerate.host",
-            data: {
-                from: data.query.from,
-                to: data.query.to,
-                amount: data.query.amount,
-                converted: data.result,
-                conversion_rate: data.info.rate,
-                date: data.date
-            }
+            message: `Historical exchange rates from ${from} to ${to} between ${start} and ${end}`,
+            base: from,
+            target: to,
+            rates,
+            start_date: response.data.start_date,
+            end_date: response.data.end_date
         });
     } catch (error) {
-        console.error("Error using exchangerate.host:", error.message);
-        respond(req, res.status(500), { error: 'Internal error during backup conversion' });
+        console.error("Error fetching historical data:", error.message);
+        respond(req, res.status(500), {
+            error: 'Failed to fetch historical data from Frankfurter API'
+        });
     }
 });
 ////
