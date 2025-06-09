@@ -309,3 +309,45 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.classList.add('hidden');
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    // existing initApp() already runs, so just bind this manually
+    const historyBtn = document.getElementById('fetch-history-btn');
+    if (historyBtn) {
+        historyBtn.addEventListener('click', fetchHistoricalRates);
+    }
+});
+
+async function fetchHistoricalRates() {
+    const from = document.getElementById('history-from').value.trim().toUpperCase();
+    const to = document.getElementById('history-to').value.trim().toUpperCase();
+    const start = document.getElementById('history-start').value;
+    const end = document.getElementById('history-end').value;
+    const resultList = document.getElementById('history-results');
+
+    if (!from || !to || !start || !end) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    try {
+        const url = `http://localhost:3000/history?from=${from}&to=${to}&start=${start}&end=${end}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || 'Failed to fetch history.');
+            return;
+        }
+
+        resultList.innerHTML = '';
+        for (const [date, rates] of Object.entries(data.rates)) {
+            const li = document.createElement('li');
+            li.textContent = `${date}: ${rates[to]}`;
+            resultList.appendChild(li);
+        }
+    } catch (err) {
+        console.error('History fetch failed:', err);
+        resultList.innerHTML = '<li>Error loading data</li>';
+    }
+}

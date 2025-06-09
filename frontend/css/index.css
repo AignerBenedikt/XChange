@@ -353,6 +353,10 @@ button:hover {
     z-index: 9999;
 }
 
+#auth-modal h2 {
+    color: black;
+}
+
 #auth-modal.hidden {
     display: none;
 }
@@ -382,6 +386,41 @@ button:hover {
 
 .close-btn:hover {
     color: #000;
+}
+
+.history-box {
+    margin-top: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px;
+}
+
+.history-box h2 {
+    color: black;
+}
+
+.history-box input,
+.history-box button {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+}
+
+#history-results {
+    margin-top: 1rem;
+    list-style: none;
+    padding-left: 0;
+}
+
+#history-results li {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
 }
 
 /* ---------- Responsive Styles ---------- */
