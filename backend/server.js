@@ -130,15 +130,8 @@ app.get('/convert', async (req, res) => {
         respond(req, res.status(500), { error: 'Internal error in getting the exchange rate' });
     }
 });
-////neu Cripto
-// List of crypto symbols supported
-const CRYPTO_CURRENCIES = ['BTC', 'ETH', 'LTC'];
-
-// Helper: check if a currency is crypto
-const isCrypto = (symbol) => CRYPTO_CURRENCIES.includes(symbol.toUpperCase());
-
-// Mixed currency converter (handles fiat ↔ crypto)
-app.get('/convert', async (req, res) => {
+////rest 2
+app.get('/convert2', async (req, res) => {
     const { from, to, amount } = req.query;
 
     if (!from || !to || !amount) {
@@ -146,112 +139,63 @@ app.get('/convert', async (req, res) => {
     }
 
     try {
-        const isFromCrypto = isCrypto(from);
-        const isToCrypto = isCrypto(to);
+        const url = `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`;
+        const response = await axios.get(url);
+        const rate = response.data.rates[to];
 
-        let converted, rate;
-
-        if (isFromCrypto || isToCrypto) {
-            // Use CoinGecko API
-            const cryptoSymbol = isFromCrypto ? from.toLowerCase() : to.toLowerCase();
-            const fiatSymbol = isFromCrypto ? to.toLowerCase() : from.toLowerCase();
-
-            const url = `https://api.coingecko.com/api/v3/simple/price?ids=${cryptoSymbol}&vs_currencies=${fiatSymbol}`;
-            const { data } = await axios.get(url);
-
-            rate = data[cryptoSymbol][fiatSymbol];
-            converted = isFromCrypto ? rate * amount : amount / rate;
-        } else {
-            // Use ExchangeRate API for fiat-to-fiat
-            const url = `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_API_KEY}/pair/${from}/${to}/${amount}`;
-            const response = await axios.get(url);
-            const data = response.data;
-
-            if (data.result !== "success") {
-                return respond(req, res.status(500), { error: 'Error getting data from the ExchangeRate API' });
-            }
-
-            rate = data.conversion_rate;
-            converted = data.conversion_result;
+        if (!rate) {
+            return respond(req, res.status(500), { error: `Could not convert from ${from} to ${to}` });
         }
 
         respond(req, res, {
-            message: "Conversion successful",
+            message: "Conversion using Frankfurter API",
             data: {
                 from,
                 to,
                 amount: Number(amount),
-                converted,
-                conversion_rate: rate
+                converted: rate,
+                date: response.data.date
             }
         });
     } catch (error) {
-        console.error("Error during conversion:", error.message);
-        respond(req, res.status(500), { error: 'Error during conversion' });
+        console.error("Frankfurter API error:", error.message);
+        respond(req, res.status(500), { error: 'Error fetching data from Frankfurter API' });
     }
 });
-/////fin
+////
+/////rest 3
+// Backup endpoint using exchangerate.host
+app.get('/convert3', async (req, res) => {
+    const { from, to, amount } = req.query;
 
-///historial conversions 1 week
-// Historical data endpoint (last 7 days)
-app.get('/history', async (req, res) => {
-    const { from, to } = req.query;
-
-    if (!from || !to) {
-        return respond(req, res.status(400), { error: 'Missing from or to parameters' });
+    if (!from || !to || !amount) {
+        return respond(req, res.status(400), { error: 'Missing parameters: from, to, amount' });
     }
 
     try {
-        const isFromCrypto = isCrypto(from);
-        const isToCrypto = isCrypto(to);
+        const url = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`;
+        const response = await axios.get(url);
+        const data = response.data;
 
-        // Cripto usando CoinGecko
-        if (isFromCrypto || isToCrypto) {
-            const crypto = isFromCrypto ? from.toLowerCase() : to.toLowerCase();
-            const fiat = isFromCrypto ? to.toLowerCase() : from.toLowerCase();
-
-            const url = `https://api.coingecko.com/api/v3/coins/${crypto}/market_chart?vs_currency=${fiat}&days=7&interval=daily`;
-            const { data } = await axios.get(url);
-
-            const prices = data.prices.map(([timestamp, value]) => ({
-                date: new Date(timestamp).toISOString().split('T')[0],
-                value: isFromCrypto ? value : 1 / value
-            }));
-
-            return respond(req, res, { from, to, history: prices });
-        }
-
-        // Fiat usando ExchangeRate API
-        const promises = [];
-        const today = new Date();
-
-        for (let i = 0; i < 7; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() - i);
-            const formatted = date.toISOString().split('T')[0];
-
-            const url = `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_API_KEY}/history/${from}/${formatted}`;
-            promises.push(axios.get(url));
-        }
-
-        const results = await Promise.all(promises);
-        const history = results.map(response => {
-            const { time_last_update_utc, conversion_rates } = response.data;
-            return {
-                date: time_last_update_utc.split(' ')[0],
-                value: conversion_rates[to]
-            };
+        respond(req, res, {
+            message: "Conversion with exchangerate.host",
+            data: {
+                from: data.query.from,
+                to: data.query.to,
+                amount: data.query.amount,
+                converted: data.result,
+                conversion_rate: data.info.rate,
+                date: data.date
+            }
         });
-
-        respond(req, res, { from, to, history });
     } catch (error) {
-        console.error("Error fetching history:", error.message);
-        respond(req, res.status(500), { error: 'Error fetching historical data' });
+        console.error("Error using exchangerate.host:", error.message);
+        respond(req, res.status(500), { error: 'Internal error during backup conversion' });
     }
 });
 ////
 
-//swagger currencies
+//swagger convert
 /**
  * @swagger
  * /convert:
