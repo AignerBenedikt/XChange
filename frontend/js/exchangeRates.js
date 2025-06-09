@@ -123,3 +123,41 @@ function setupGenerateLink() {
         }
     });
 }
+document.getElementById('save-rate-btn').addEventListener('click', async () => {
+    const from = document.getElementById('base-selector').value;
+    const to = document.getElementById('target-selector').value;
+    const rateText = document.getElementById('exchange-result').textContent;
+
+    if (!rateText || rateText === '-') {
+        alert("No rate loaded.");
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert("You must be logged in to save favorites.");
+        return;
+    }
+
+    try {
+        const res = await fetch('http://localhost:3000/favorites', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ from, to })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("Exchange rate added to your favorites!");
+        } else {
+            alert(data.error || "Failed to save favorite.");
+        }
+    } catch (err) {
+        console.error("Error saving favorite:", err);
+        alert("Something went wrong.");
+    }
+});
