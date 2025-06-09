@@ -201,6 +201,33 @@ app.get('/history', async (req, res) => {
     }
 });
 ////
+
+///Api flags
+app.get('/flags', async (req, res) => {
+    try {
+        const url = 'https://restcountries.com/v3.1/all?fields=name,flags,cca2';
+        const response = await axios.get(url);
+
+        const countries = response.data.map(country => ({
+            name: country.name.common,
+            code: country.cca2,
+            flag: country.flags.svg || country.flags.png
+        }));
+
+        respond(req, res, {
+            message: 'List of country flags fetched successfully',
+            countries
+        });
+    } catch (error) {
+        console.error("Error fetching flags:", error.message);
+        respond(req, res.status(500), {
+            error: 'Failed to fetch flags from Rest Countries API'
+        });
+    }
+});
+
+
+///fin 
 ///
 //swagger convert
 /**
