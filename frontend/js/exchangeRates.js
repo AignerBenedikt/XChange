@@ -1,4 +1,23 @@
-document.addEventListener('DOMContentLoaded', bindCurrencySelectors);
+let flagsMap = new Map();
+
+async function loadFlagsMap() {
+    try {
+        const response = await fetch('http://localhost:3000/flags');
+        const { countries } = await response.json();
+
+        countries.forEach(({ code, flag }) => {
+            flagsMap.set(code.toUpperCase(), flag);
+        });
+    } catch (err) {
+        console.error("Failed to load flags:", err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadFlagsMap();
+    bindCurrencySelectors();
+});
+
 
 async function bindCurrencySelectors() {
     const baseSelector = document.getElementById('base-selector');
@@ -70,20 +89,26 @@ async function setupExchangeRateDropdowns() {
                 if (filtered.length) dropdown.style.display = 'block';
 
                 filtered.forEach(([code, name]) => {
-                    const div = document.createElement('div');
-                    div.textContent = `${code} - ${name}`;
-                    div.onclick = (e) => {
-                        e.preventDefault();
-                        input.value = code;
-                        dropdown.style.display = 'none';
+    const div = document.createElement('div');
+    const flagUrl = flagsMap.get(code.slice(0, 2).toUpperCase());
 
-                        setTimeout(() => {
-                            loadExchangeRates();
-                            updateExchangeResult();
-                        }, 100);
-                    };
-                    dropdown.appendChild(div);
-                });
+    div.innerHTML = flagUrl
+        ? `<img src="${flagUrl}" alt="flag" style="width:20px; margin-right:5px;"> ${code} - ${name}`
+        : `${code} - ${name}`;
+
+    div.onclick = (e) => {
+        e.preventDefault();
+        input.value = code;
+        dropdown.style.display = 'none';
+
+        setTimeout(() => {
+            loadExchangeRates();
+            updateExchangeResult();
+        }, 100);
+    };
+    dropdown.appendChild(div);
+});
+
             });
 
             input.addEventListener('blur', () => {
