@@ -210,6 +210,11 @@ function bindAuthEvents() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
+        if (!username || !password) {
+            alert('Both username and password are required.');
+            return;
+        }
+
         try {
             const res = await fetch('http://localhost:3000/login', {
                 method: 'POST',
@@ -236,6 +241,11 @@ function bindAuthEvents() {
     document.getElementById('register-btn').addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+
+        if (!username || !password) {
+            alert('Both username and password are required.');
+            return;
+        }
 
         try {
             const res = await fetch('http://localhost:3000/register', {

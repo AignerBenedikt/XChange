@@ -4,6 +4,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const bcrypt = require('bcrypt');
+const session = require('express-session');
 const respond = require('./utils/respond');
 const refreshTokens = new Set();
 require('dotenv').config();
@@ -15,6 +16,16 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your_super_secret_here',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        secure: false, // true if HTTPS in prod
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+    }
+}));
 
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -328,12 +339,18 @@ app.get('/displayRates', async (req, res) => {
 
 
 function authenticateToken(req, res, next) {
-    // Middleware to verify token
     const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.sendStatus(401);
+
+    if (!token) {
+        // Send a JSON error response for 401
+        return respond(req, res.status(401), { error: 'Access Denied: No Token Provided' });
+    }
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403);
+        if (err) {
+            // Send a JSON error response for 403
+            return respond(req, res.status(403), { error: 'Forbidden: Invalid or expired token' });
+        }
         req.user = user;
         next();
     });
@@ -368,18 +385,25 @@ function authenticateToken(req, res, next) {
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+
+    if (!username || !password) {
+        return respond(req, res.status(400), { error: 'Username and password are required' });
+    }
+
     const user = users[username];
-    if (!user) return respond(req, res.status(400),{ error: 'User not found' });
+    if (!user) return respond(req, res.status(400), { error: 'User not found' });
 
     const isValid = await bcrypt.compare(password, user.passwordHash);
-       if (!isValid) return respond(req, res.status(401), { error: 'Invalid password' });
+    if (!isValid) return respond(req, res.status(401), { error: 'Invalid password' });
 
-    const accessToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '1h' });
-    const refreshToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '7d' });
-
-    refreshTokens.add(refreshToken); // Store refresh token
-
-    respond(req, res,{ accessToken, refreshToken });
+    if (user) {
+        req.session.username = username;
+        const accessToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '1h' });
+        const refreshToken = jwt.sign({ name: username }, SECRET_KEY, { expiresIn: '7d' });
+        refreshTokens.add(refreshToken);
+    
+        respond(req, res, { accessToken, refreshToken });
+    }
 });
 
 app.post('/refresh', (req, res) => {
@@ -396,30 +420,31 @@ app.post('/refresh', (req, res) => {
        }
 });
 
-app.post('/logout', authenticateToken, (req, res) => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    const { refreshToken } = req.body;
-
-    tokenBlacklist.add(token);
-    if (refreshToken) refreshTokens.delete(refreshToken);
-
-    respond(req, res,{ message: 'Logged out successfully' });
+app.post('/logout', (req, res) => {
+    req.session.destroy(() => {
+        respond(req, res, { message: 'Logged out, session destroyed' });
+    });
 });
 
-
 app.get('/protected-route', authenticateToken, (req, res) => {
-    respond(req, res,{message: 'Hello, ${req.user.name}! You have accessed a protected route.'});
+    respond(req, res, { message: `Hello, ${req.user.name || req.user.username}! You have accessed a protected route.` });
 });
 
 app.post('/register', async (req, res) => {
-    const {username, password} = req.body;
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return respond(req, res.status(400), { error: 'Username and password are required' });
+    }
+
     if (users[username]) {
-        return respond(req, res.status(400),{error: 'User already exists'});
+        return respond(req, res.status(400), { error: 'User already exists' });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    users[username] = {passwordHash, favorites: []};
-    respond(req, res,{message: 'User registered successfully'});
+    users[username] = { passwordHash, favorites: [] };
+
+    respond(req, res, { message: 'User registered successfully' });
 });
 
 app.get('/favorites', authenticateToken, (req, res) => {
@@ -521,6 +546,13 @@ app.get('/favorites/link', authenticateToken, (req, res) => {
     respond(req, res, {
         message: 'Use this link to view the real-time conversion',
         link
+    });
+});
+
+app.get('/whoami', (req, res) => {
+    res.json({
+        sessionId: req.sessionID,
+        username: req.session.username || null,
     });
 });
 
