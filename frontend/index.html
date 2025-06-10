@@ -14,10 +14,12 @@
         <span id="welcome-user">Welcome, User</span>
         <button id="logout-btn">Logout</button>
     </div>
+<!--
     <div id="auth-buttons">
         <button id="open-login">Login</button>
         <button id="open-register">Register</button>
     </div>
+-->
 </header>
 <nav>
     <ul>
@@ -73,10 +75,22 @@
             <button id="fetch-history-btn">See History</button>
             <ul id="history-results"></ul>
         </div>
-    </div>   
+    </div>  
+        <div id="auth-controls">
+        <!-- Login Form -->
+        <div id="login-section">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter username">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter password">
+            <button id="login-btn">Login</button>
+            <button id="register-btn">Register</button>
+        </div>
+    </div> 
 </main>
 
     <!-- Auth Modal -->
+<!--
 <div id="auth-modal" class="hidden">
     <div class="modal-content">
         <span class="close-btn" id="close-modal">&times;</span>
@@ -88,7 +102,7 @@
         <button id="submit-auth">Login</button>
     </div>
 </div>
-
+-->
 <footer>
     <ul>
     <li>© XChange</li>

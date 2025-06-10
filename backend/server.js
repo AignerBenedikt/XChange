@@ -519,7 +519,7 @@ app.get('/favorites/link', authenticateToken, (req, res) => {
     const link = `http://localhost:${PORT}/convert?from=${from}&to=${to}&amount=1`;
 
     respond(req, res, {
-        message: '🔗 Use this link to view the real-time conversion',
+        message: 'Use this link to view the real-time conversion',
         link
     });
 });
