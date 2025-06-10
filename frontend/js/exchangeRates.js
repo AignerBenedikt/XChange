@@ -26,9 +26,23 @@ async function bindCurrencySelectors() {
     baseSelector.value = 'USD';
     targetSelector.value = 'EUR';
 
+    showTopCurrencyPlaceholders();
     await setupExchangeRateDropdowns();
 
     targetSelector.addEventListener('input', updateExchangeResult);
+}
+
+function showTopCurrencyPlaceholders() {
+    const topCurrenciesList = document.getElementById('top-currencies-list');
+    const popularCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD'];
+
+    topCurrenciesList.innerHTML = '';
+
+    popularCurrencies.forEach(code => {
+        const li = document.createElement('li');
+        li.textContent = `${code}: -`; // placeholder sin valor
+        topCurrenciesList.appendChild(li);
+    });
 }
 
 
