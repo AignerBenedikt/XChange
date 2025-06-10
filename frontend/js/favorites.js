@@ -1,3 +1,17 @@
+async function getFlag(countryCode) {
+    try {
+        const response = await fetch(`https://restcountries.com/v3.1/currency/${countryCode}`);
+        const data = await response.json();
+
+        if (!Array.isArray(data) || !data[0]) return '';
+
+        const country = data[0];
+        return country.flags?.png || '';
+    } catch (err) {
+        console.error(`Failed to fetch flag for ${countryCode}:`, err);
+        return '';
+    }
+}
 document.addEventListener('DOMContentLoaded', () => {
     loadFavorites();
 });
@@ -32,12 +46,27 @@ async function renderFavorites(favorites) {
     const list = document.getElementById('favorites-list');
     list.innerHTML = '';
 
+const msg = document.getElementById('no-favorites-msg');
+if (favorites.length === 0) {
+    msg.style.display = 'block';
+    return;
+} else {
+    msg.style.display = 'none';
+}
+
     for (const fav of favorites) {
         const rate = await fetchRate(fav.from, fav.to); // Kurs abrufen
 
         const item = document.createElement('div');
-        item.textContent = `${fav.from} ${rate} → ${fav.to}`;
+        const fromFlag = await getFlag(fav.from);
+const toFlag = await getFlag(fav.to);
 
+item.innerHTML = `
+    <img src="${fromFlag}" alt="${fav.from} flag" width="30" style="vertical-align: middle;">
+    ${fav.from} ${rate} →
+    <img src="${toFlag}" alt="${fav.to} flag" width="30" style="vertical-align: middle;">
+    ${fav.to}
+`;
         const updateBtn = document.createElement('button');
         updateBtn.textContent = 'Edit';
         updateBtn.onclick = async () => {
