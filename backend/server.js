@@ -141,40 +141,8 @@ app.get('/convert', async (req, res) => {
         respond(req, res.status(500), { error: 'Internal error in getting the exchange rate' });
     }
 });
-////rest 2
-app.get('/convert2', async (req, res) => {
-    const { from, to, amount } = req.query;
 
-    if (!from || !to || !amount) {
-        return respond(req, res.status(400), { error: 'Missing parameters: from, to, amount' });
-    }
-
-    try {
-        const url = `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`;
-        const response = await axios.get(url);
-        const rate = response.data.rates[to];
-
-        if (!rate) {
-            return respond(req, res.status(500), { error: `Could not convert from ${from} to ${to}` });
-        }
-
-        respond(req, res, {
-            message: "Conversion using Frankfurter API",
-            data: {
-                from,
-                to,
-                amount: Number(amount),
-                converted: rate,
-                date: response.data.date
-            }
-        });
-    } catch (error) {
-        console.error("Frankfurter API error:", error.message);
-        respond(req, res.status(500), { error: 'Error fetching data from Frankfurter API' });
-    }
-});
-////
-//// api 3 history
+//// api 2 history
 app.get('/history', async (req, res) => {
     const { from, to, start, end } = req.query;
 
@@ -470,23 +438,39 @@ app.post('/favorites', authenticateToken, (req, res) => {
 
 app.patch('/favorites', authenticateToken, (req, res) => {
     const username = req.user.name;
-    const { from, to, updates } = req.body;
+    const { oldFrom, oldTo, newFrom, newTo } = req.body;
 
     const user = users[username];
-    const fav = user.favorites.find(f => f.from === from && f.to === to);
+    // Find the favorite using the old values
+    const fav = user.favorites.find(f => f.from === oldFrom && f.to === oldTo);
 
     if (!fav) {
         return respond(req, res.status(404), { error: 'Favorite not found' });
     }
 
-    if (updates?.from) fav.from = updates.from;
-    if (updates?.to) fav.to = updates.to;
-    if (updates?.count) fav.count = updates.count;
+    let changed = false; // To track if any update actually happened
+
+    // If newFrom is provided and is different from the current 'from'
+    if (newFrom && newFrom !== fav.from) {
+        fav.from = newFrom;
+        changed = true;
+    }
+
+    // If newTo is provided and is different from the current 'to'
+    if (newTo && newTo !== fav.to) {
+        fav.to = newTo;
+        changed = true;
+    }
+
+    if (!changed) {
+        // No actual change was requested or made
+        return respond(req, res.status(400), { message: 'No changes provided for favorite.' });
+    }
 
     respond(req, res, {
         message: 'Favorite patched successfully',
         favorite: fav,
-        favorites: user.favorites
+        favorites: user.favorites // Send back updated list
     });
 });
 

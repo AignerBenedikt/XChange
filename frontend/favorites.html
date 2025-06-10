@@ -1,16 +1,96 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/favorites.css">
-    <title>Favorites</title>
+    <title>Favorites Manager</title>
 </head>
 <body>
-    <h1>Your Favorites</h1>
-    <p id="no-favorites-msg" style="display: none;">You have no favorites yet.</p>
-    <div id="favorites-list"></div>
-    <script defer src="js/favorites.js"></script>
-</body>
+<div class="container">
+    <div class="header-with-logo">
+        <a href="index.html" id="logo-link"><img src="resources/XChange.png" alt="XChange Logo" id="header-logo"></a>
+        <h1>Favorites Manager</h1>
+    </div>
 
+    <div class="login-section">
+        <div class="section">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <input type="text" id="loginUsername" placeholder="Benutzername" required>
+                <input type="password" id="loginPassword" placeholder="Passwort" required>
+                <button type="submit">Login</button>
+            </form>
+            <div id="loginMessage" class="message"></div>
+        </div>
+
+        <div class="section">
+            <h2>Registrieren</h2>
+            <form id="registerForm">
+                <input type="text" id="registerUsername" placeholder="Benutzername" required>
+                <input type="password" id="registerPassword" placeholder="Passwort" required>
+                <button type="submit">Registrieren</button>
+            </form>
+            <div id="registerMessage" class="message"></div>
+        </div>
+    </div>
+
+    <div class="auth-section">
+        <div class="section">
+            <h2>Account Aktionen</h2>
+            <button id="refreshTokenBtn">Token aktualisieren</button>
+            <button id="logoutBtn">Logout</button>
+            <div id="authMessage" class="message"></div>
+        </div>
+    </div>
+
+    <div class="favorites-section">
+        <div class="section">
+            <h2>Meine Favoriten</h2>
+            <form id="addFavoriteForm">
+                <div class="currency-dropdown-wrapper">
+                    <input type="text" id="from" placeholder="Von" required>
+                </div>
+                <div id="fromMessage" class="message"></div>
+
+                <div class="currency-dropdown-wrapper">
+                    <input type="text" id="to" placeholder="Nach" required>
+                </div>
+                <div id="toMessage" class="message"></div>
+
+                <button type="submit">Favorit hinzufügen</button>
+            </form>
+            <div id="favoriteMessage" class="message"></div>
+
+            <table id="favoritesTable">
+                <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Exchange Rate</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <ul>
+        <li>© XChange</li>
+        <li>―</li>
+        <li>Created by:</li>
+        <li><a href="mailto:benedikt.aigner@stud.fh-campuswien.ac.at">Benedikt Aigner</a></li>
+        <li><a href="mailto:laura.munoz.lopez@stud.fh-campuswien.ac.at">Laura Munoz Lopez</a></li>
+        <li><a href="mailto:melih.gueldogdu@stud.fh-campuswien.ac.at">Melih Güldogdu</a></li>
+        <li>
+            <a id="campus-link" href="https://www.fh-campuswien.ac.at/" target="_blank" rel="noopener noreferrer">Visit us at UAS Campus Vienna</a>
+        </li>
+    </ul>
+</footer>
+
+<script src="js/favorites.js"></script>
+</body>
 </html>

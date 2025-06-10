@@ -1,3 +1,5 @@
+// API Base URL - anpassen falls nötig
+const API_BASE_URL = 'http://localhost:3000';
 let flagsMap = new Map();
 
 async function loadFlagsMap() {
@@ -13,15 +15,21 @@ async function loadFlagsMap() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadFlagsMap();
+document.addEventListener('DOMContentLoaded', async() => {
     bindCurrencySelectors();
+    await loadFlagsMap();
+    // Event listener for the "Add to Favorites" button
+    const saveRateBtn = document.getElementById('save-rate-btn');
+    if (saveRateBtn) {
+        saveRateBtn.addEventListener('click', handleSaveRate);
+    }
 });
-
 
 async function bindCurrencySelectors() {
     const baseSelector = document.getElementById('base-selector');
     const targetSelector = document.getElementById('target-selector');
+
+    if (!baseSelector || !targetSelector) return; // Exit if elements not found
 
     baseSelector.value = 'USD';
     targetSelector.value = 'EUR';
@@ -30,6 +38,10 @@ async function bindCurrencySelectors() {
     await setupExchangeRateDropdowns();
 
     targetSelector.addEventListener('input', updateExchangeResult);
+    baseSelector.addEventListener('input', updateExchangeResult); // Added for base currency changes
+
+    updateExchangeResult();
+    loadExchangeRates();
 }
 
 function showTopCurrencyPlaceholders() {
@@ -45,14 +57,16 @@ function showTopCurrencyPlaceholders() {
     });
 }
 
-
-
 async function loadExchangeRates() {
     const topCurrenciesList = document.getElementById('top-currencies-list');
-    const baseCurrency = document.getElementById('base-selector').value.trim().toUpperCase();
+    const baseCurrencyInput = document.getElementById('base-selector');
+
+    if (!topCurrenciesList || !baseCurrencyInput) return;
+
+    const baseCurrency = baseCurrencyInput.value.trim().toUpperCase();
 
     try {
-        const response = await fetch(`http://localhost:3000/displayRates?base=${baseCurrency}`);
+        const response = await fetch(`${API_BASE_URL}/displayRates?base=${baseCurrency}`);
         if (!response.ok) throw new Error('Fehler beim Laden der Wechselkurse');
 
         const { data } = await response.json();
@@ -64,13 +78,17 @@ async function loadExchangeRates() {
         popularCurrencies.forEach(code => {
             if (rates[code]) {
                 const li = document.createElement('li');
-                li.textContent = `${code}: ${rates[code]}`;
+                li.textContent = `${code}: ${rates[code].toFixed(4)}`;
                 topCurrenciesList.appendChild(li);
             }
         });
     } catch (err) {
         console.error('Error loading exchange rates:', err);
-        topCurrenciesList.innerHTML = '<li>Fehler beim Laden</li>';
+        if (typeof showMessage === 'function') {
+            showMessage('favorite-message', 'Fehler beim Laden der Top-Wechselkurse', 'error');
+        } else {
+            topCurrenciesList.innerHTML = '<li>Fehler beim Laden der Top-Wechselkurse</li>';
+        }
     }
 }
 
@@ -103,25 +121,25 @@ async function setupExchangeRateDropdowns() {
                 if (filtered.length) dropdown.style.display = 'block';
 
                 filtered.forEach(([code, name]) => {
-    const div = document.createElement('div');
-    const flagUrl = flagsMap.get(code.slice(0, 2).toUpperCase());
+                    const div = document.createElement('div');
+                    const flagUrl = flagsMap.get(code.slice(0, 2).toUpperCase());
 
-    div.innerHTML = flagUrl
-        ? `<img src="${flagUrl}" alt="flag" style="width:20px; margin-right:5px;"> ${code} - ${name}`
-        : `${code} - ${name}`;
+                    div.innerHTML = flagUrl
+                        ? `<img src="${flagUrl}" alt="flag" style="width:20px; margin-right:5px;"> ${code} - ${name}`
+                        : `${code} - ${name}`;
 
-    div.onclick = (e) => {
-        e.preventDefault();
-        input.value = code;
-        dropdown.style.display = 'none';
+                    div.onclick = (e) => {
+                        e.preventDefault();
+                        input.value = code;
+                        dropdown.style.display = 'none';
 
-        setTimeout(() => {
-            loadExchangeRates();
-            updateExchangeResult();
-        }, 100);
-    };
-    dropdown.appendChild(div);
-});
+                        setTimeout(() => {
+                            loadExchangeRates();
+                            updateExchangeResult();
+                        }, 100);
+                    };
+                    dropdown.appendChild(div);
+                });
 
             });
 
@@ -152,76 +170,62 @@ async function setupExchangeRateDropdowns() {
     }
 }
 
-
 async function updateExchangeResult() {
-    const base = document.getElementById('base-selector').value;
-    const target = document.getElementById('target-selector').value;
+    const base = document.getElementById('base-selector')?.value;
+    const target = document.getElementById('target-selector')?.value;
     const resultEl = document.getElementById('exchange-result');
 
+    if (!base || !target || !resultEl) {
+        if (resultEl) resultEl.textContent = '-';
+        return;
+    }
+
     try {
-        const response = await fetch(`http://localhost:3000/displayRates?base=${base}`);
+        const response = await fetch(`${API_BASE_URL}/displayRates?base=${base}`);
         if (!response.ok) throw new Error('Fehler beim Abrufen des Kurses');
 
         const { data } = await response.json();
         const rate = data.conversion_rates[target];
 
         if (rate) {
-            resultEl.textContent = `1 ${base} = ${rate} ${target}`;
+            resultEl.textContent = `1 ${base} = ${rate.toFixed(6)} ${target}`;
         } else {
             resultEl.textContent = `Kein Kurs verfügbar für ${target}`;
         }
     } catch (err) {
         console.error('Fehler beim Aktualisieren des Wechselkurses:', err);
-        resultEl.textContent = 'Fehler beim Laden des Wechselkurses.';
+        if (resultEl) resultEl.textContent = 'Fehler beim Laden des Wechselkurses.';
     }
 }
-//  NEW: Generate conversion link NEW
-function setupGenerateLink() {
-    const linkBtn = document.getElementById('generate-link-btn');
-    const output = document.getElementById('generated-link');
 
-    if (!linkBtn || !output) return;
+// Function to handle saving the exchange rate as a favorite
+async function handleSaveRate() {
+    const from = document.getElementById('base-selector')?.value;
+    const to = document.getElementById('target-selector')?.value;
+    const rateText = document.getElementById('exchange-result')?.textContent;
+    const messageElementId = 'favorite-message'; // ID of the message div in exchangeRates.html
 
-    linkBtn.addEventListener('click', async () => {
-        const from = document.getElementById('base-selector').value;
-        const to = document.getElementById('target-selector').value;
-        const amount = document.getElementById('amount-input').value;
-
-        try {
-            const response = await fetch('http://localhost:3000/favorites/link', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ from, to, amount }),
-            });
-
-            const { link } = await response.json();
-            output.textContent = link;
-        } catch (err) {
-            console.error('Error generating link:', err);
-            output.textContent = 'Error creating link';
+    if (!rateText || rateText === '-' || !from || !to) {
+        if (typeof showMessage === 'function') {
+            showMessage(messageElementId, "Bitte einen gültigen Wechselkurs auswählen.", "error");
+        } else {
+            alert("Please load a valid exchange rate first.");
         }
-    });
-}
-document.getElementById('save-rate-btn').addEventListener('click', async () => {
-    const from = document.getElementById('base-selector').value;
-    const to = document.getElementById('target-selector').value;
-    const rateText = document.getElementById('exchange-result').textContent;
-
-    if (!rateText || rateText === '-') {
-        alert("No rate loaded.");
         return;
     }
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken'); // Get the stored access token
     if (!token) {
-        alert("You must be logged in to save favorites.");
+        if (typeof showMessage === 'function') {
+            showMessage(messageElementId, "Sie müssen angemeldet sein, um Favoriten zu speichern.", "error");
+        } else {
+            alert("You must be logged in to save favorites.");
+        }
         return;
     }
 
     try {
-        const res = await fetch('http://localhost:3000/favorites', {
+        const res = await fetch(`${API_BASE_URL}/favorites`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -233,12 +237,26 @@ document.getElementById('save-rate-btn').addEventListener('click', async () => {
         const data = await res.json();
 
         if (res.ok) {
-            alert("Exchange rate added to your favorites!");
+            if (typeof showMessage === 'function') {
+                showMessage(messageElementId, "Wechselkurs zu Favoriten hinzugefügt!", "success");
+            } else {
+                alert("Exchange rate added to your favorites!");
+            }
+            // Optionally, you might want to refresh the favorites list on favorites.html if it's open.
+            // This would require a more complex Pub/Sub pattern or similar.
         } else {
-            alert(data.error || "Failed to save favorite.");
+            if (typeof showMessage === 'function') {
+                showMessage(messageElementId, data.error || "Fehler beim Speichern des Favoriten.", "error");
+            } else {
+                alert(data.error || "Failed to save favorite.");
+            }
         }
     } catch (err) {
         console.error("Error saving favorite:", err);
-        alert("Something went wrong.");
+        if (typeof showMessage === 'function') {
+            showMessage(messageElementId, "Ein Fehler ist aufgetreten beim Speichern des Favoriten.", "error");
+        } else {
+            alert("Something went wrong.");
+        }
     }
-});
+}

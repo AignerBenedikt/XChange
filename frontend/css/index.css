@@ -18,12 +18,14 @@ header {
 
 body {
     display: grid;
+    /* Define grid areas for larger screens */
     grid-template-areas:
         "header header"
         "nav main"
+        "auth auth" /* New row for auth-controls */
         "footer footer";
     grid-template-columns: minmax(192px, 15%) auto;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr auto auto; /* Added a row for auth-controls */
     min-height: 100vh;
     font-family: Inter, sans-serif;
     background-color: #e6f4ea;
@@ -41,6 +43,52 @@ main {
     grid-area: main;
 }
 
+#auth-controls {
+    grid-area: auth;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    margin-bottom: 20px;
+}
+
+#login-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Space between elements */
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 350px; /* Limit width for better appearance */
+    width: 100%; /* Make it take full width up to max-width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+#login-section label {
+    font-weight: bold;
+    color: #333;
+}
+
+#login-section input {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc; /* Thinner border */
+    width: 100%; /* Ensure inputs take full width of container */
+    box-sizing: border-box;
+}
+
+#login-section button {
+    padding: 0.75rem 1rem; /* Adjust button padding */
+    font-size: 1rem;
+    width: 100%; /* Ensure buttons take full width */
+    box-sizing: border-box;
+    margin-top: 0.5rem; /* Space between inputs and buttons */
+}
+
+
 footer {
     display: flex;
     align-items: center;
@@ -51,7 +99,7 @@ footer {
 
 footer li {
     display: inline-block;
-    margin-top: 10vh;
+    margin-top: 10vh; /* This might be too much, adjust as needed */
     margin-right: 1.5rem;
     list-style: none;
 }
@@ -106,7 +154,7 @@ h2 {
 
 .currency-box {
     margin-bottom: 20px;
-    position: absolute;
+    position: absolute; /* This absolute positioning might interfere with responsive layout, consider removing if possible */
 }
 
 .currency-box label {
@@ -271,25 +319,29 @@ button:hover {
     margin-left: 0;
 }
 
-#auth-controls {
+/* Removed old #auth-controls styles that were interfering */
+/* #auth-controls {
     margin-top: 1.5rem;
     text-align: center;
     grid-area: main;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
+} */
 
-#login-section input {
+
+/* Removed specific login-section input width as it's handled by max-width and box-sizing */
+/* #login-section input {
     padding: 0.5rem;
     font-size: 1rem;
     border-radius: 0.5rem;
     border: 2px solid #ccc;
     margin-bottom: 0.5rem;
     width: 200px;
-}
+} */
 
-#login-section button,
+/* Removed specific login-section button width as it's handled by max-width and box-sizing */
+/* #login-section button,
 #logout-btn {
     padding: 0.5rem 1rem;
     background-color: #28a745;
@@ -299,8 +351,9 @@ button:hover {
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s;
-}
+} */
 
+/* This style is fine */
 #login-section button:hover,
 #logout-btn:hover {
     background-color: #43b761;
@@ -340,44 +393,6 @@ button:hover {
     color: black;
 }
 
-/*
-#auth-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-#auth-modal h2 {
-    color: black;
-}
-
-#auth-modal.hidden {
-    display: none;
-}
-
-.modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    width: 300px;
-    gap: 1rem;
-}
-
-.modal-content input {
-    padding: 0.5rem;
-    font-size: 1rem;
-}
-*/
 .close-btn {
     align-self: flex-end;
     font-size: 1.5rem;
@@ -406,11 +421,12 @@ button:hover {
 .history-box input,
 .history-box button {
     margin: 0.5rem 0;
-    padding: 0.5rem;
+    padding: 0.75rem;
     width: 100%;
     font-size: 1rem;
     border-radius: 0.5rem;
     border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
 #history-results {
@@ -420,8 +436,9 @@ button:hover {
 }
 
 #history-results li {
-    padding: 0.25rem 0;
+    padding: 0.5rem 0;
     border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
 }
 
 .currency-dropdown {
@@ -451,7 +468,7 @@ button:hover {
     background-color: #f0f0f0;
 }
 
-/* ---------- Responsive Styles ---------- */
+/* --- Responsive Styles --- */
 
 @media (max-width: 768px) {
     body {
@@ -459,9 +476,10 @@ button:hover {
             "header"
             "nav"
             "main"
+            "auth" /* Auth now in a separate row */
             "footer";
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr auto;
+        grid-template-rows: auto auto 1fr auto auto; /* Adjusted rows */
     }
 
     nav {
@@ -492,9 +510,25 @@ button:hover {
         color: #28a745;
     }
 
-    footer {
-        margin-top: 6rem;
+    .history-box {
+        width: 100%;
+        max-width: 500px;
+        margin-top: 1rem;
+        box-sizing: border-box;
+    }
 
+    /* Auth section responsiveness */
+    #auth-controls {
+        padding: 1.5rem; /* Slightly less padding on smaller screens */
+    }
+
+    #login-section {
+        max-width: 300px; /* Adjust max-width for smaller screens */
+    }
+
+
+    footer {
+        margin-top: 6rem; /* Adjust as needed, less margin might be fine now */
     }
 
     #campus-link{
@@ -524,9 +558,10 @@ button:hover {
             "header"
             "nav"
             "main"
+            "auth" /* Auth now in a separate row */
             "footer";
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr auto;
+        grid-template-rows: auto auto 1fr auto auto; /* Adjusted rows */
     }
 
     h1 {
@@ -546,14 +581,13 @@ button:hover {
     main {
         display: flex;
         justify-content: center;
-        padding: 0 2rem;
+        padding: 0 1rem; /* Adjust padding for very small screens */
     }
 
     .converter-box {
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto;
-        box-sizing: border-box;
+        max-width: 100%; /* Erlaubt volle Breite auf sehr kleinen Bildschirmen */
+        padding: 1.5rem; /* Weniger Padding für engere Bildschirme */
+        gap: 1rem; /* Weniger Abstand innerhalb der Box */
     }
 
     .conversion-result {
@@ -561,9 +595,22 @@ button:hover {
         color: #28a745;
     }
 
-    footer {
-        margin-top: 6rem;
+    .history-box {
+        max-width: 100%; /* Erlaubt volle Breite auf sehr kleinen Bildschirmen */
+        padding: 1.5rem; /* Weniger Padding */
+    }
 
+    /* Auth section responsiveness */
+    #auth-controls {
+        padding: 1rem; /* Even less padding */
+    }
+
+    #login-section {
+        max-width: 280px; /* Further reduce max-width */
+    }
+
+    footer {
+        margin-top: 6rem; /* Adjust as needed */
     }
 
     #campus-link{
@@ -572,9 +619,9 @@ button:hover {
 
     footer ul {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem 2rem;
-        padding: 1rem;
+        grid-template-columns: 1fr; /* Single column for very small screens */
+        gap: 0.5rem;
+        padding: 0.5rem;
         justify-items: center;
         list-style: none;
     }

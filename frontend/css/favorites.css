@@ -1,10 +1,376 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    overflow-x: hidden;
+/* General Body and Container Styles */
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #e6f4ea; /* Matches your main site's background */
+    box-sizing: border-box; /* Ensures padding is included in element's total width and height */
 }
 
-body {
-    background-color: #e6f4ea;
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- New Styles for Header with Logo --- */
+.header-with-logo {
+    display: flex;
+    align-items: center; /* Vertically centers logo and title */
+    gap: 15px; /* Space between logo and title */
+    margin-bottom: 20px; /* Space below the header section */
+    justify-content: center; /* Horizontally centers the content */
+}
+
+.header-with-logo h1 {
+    margin: 0; /* Removes default margin from h1 */
+    font-size: 2.5em; /* Standard font size for the title */
+    color: #333; /* Darker color for better contrast */
+}
+
+#header-logo {
+    height: 60px; /* Standard height of the logo */
+    width: auto; /* Maintains aspect ratio */
+}
+
+#logo-link {
+    display: flex; /* Ensures the link wraps the image correctly */
+    align-items: center; /* Vertical alignment within the link */
+}
+
+/* Sections (Login, Register, Auth Actions, Favorites) */
+.section {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fff; /* Explicit white background for sections */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+}
+
+/* Headings within Sections */
+.section h2 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #28a745; /* Green border for consistency */
+    padding-bottom: 5px;
+}
+
+/* Visibility based on login status (from your original CSS) */
+.auth-section,
+.favorites-section {
+    display: none;
+}
+
+.logged-in .auth-section {
+    display: block;
+}
+
+.logged-in .favorites-section {
+    display: block;
+}
+
+.logged-in .login-section {
+    display: none;
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px; /* Adds space after forms */
+}
+
+/* Input and Button General Styles */
+input,
+button {
+    padding: 10px; /* Slightly more padding for better usability */
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1em; /* Consistent font size */
+    box-sizing: border-box; /* Essential for responsive sizing */
+}
+
+button {
+    background-color: #28a745; /* A consistent green from your other CSS */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+/* Specific button styles for actions in Favorites Table */
+.action-buttons button {
+    padding: 5px 10px; /* Smaller padding for table buttons */
+    margin-right: 5px; /* Space between buttons */
+    font-size: 0.9em; /* Smaller font for table buttons */
+    /* Override width for these buttons if needed */
+    width: auto;
+}
+
+.action-buttons button.delete {
+    background-color: #dc3545; /* Red */
+}
+
+.action-buttons button.delete:hover {
+    background-color: #c82333;
+}
+
+.action-buttons button.update {
+    background-color: #ffc107; /* Yellow */
+    color: #333; /* Dark text for yellow background */
+}
+
+.action-buttons button.update:hover {
+    background-color: #e0a800;
+}
+
+.action-buttons button.link {
+    background-color: #17a2b8; /* Blue */
+}
+
+.action-buttons button.link:hover {
+    background-color: #138496;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 10px; /* Slightly more padding for readability */
+    text-align: left;
+}
+
+th {
+    background-color: #e6f4ea; /* Light green header matching body background */
+    color: #333;
+    font-weight: bold;
+}
+
+/* Zebra striping for table rows */
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Lighter shade of white */
+}
+
+tbody tr:hover {
+    background-color: #f0f0f0; /* Hover effect */
+}
+
+/* Message Styles */
+.message {
+    margin-top: 10px; /* Consistent margin above messages */
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em; /* Your original font size */
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message.info { /* Added for general info messages if you use them */
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Currency Dropdown for Favorite Adding */
+.currency-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.currency-dropdown-wrapper input {
+    width: 100%; /* Make input fill the wrapper (due to box-sizing: border-box) */
+}
+
+.dropdown {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 100;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+    top: 100%; /* Position below the input */
+    left: 0;
+    right: 0; /* Ensures it spans full width */
+}
+
+.dropdown div {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.dropdown div:last-child {
+    border-bottom: none;
+}
+
+.dropdown div:hover {
+    background-color: #f0f0f0;
+}
+
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Da der Body ein max-width hat, wird der Footer auch zentriert */
+    width: 100%; /* Stelle sicher, dass er die volle Breite des Body-Containers einnimmt */
+    color: black;
+    padding: 20px 0; /* Etwas Padding oben und unten */
+    margin-top: 40px; /* Abstand zum Inhalt darüber */
+}
+
+footer ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap; /* Erlaubt Umbruch auf kleineren Bildschirmen */
+    justify-content: center;
+    gap: 1.5rem; /* Abstand zwischen Listenelementen */
+}
+
+footer li {
+    display: inline-block; /* Beibehalten, aber Flexbox im ul ist wichtiger */
+    margin: 0; /* Entferne den alten Margin-top und -right, Flexbox regelt es */
+    text-align: center;
+}
+
+footer li a {
+    text-decoration: none;
+    color: #333; /* Dunklere Farbe für besseren Kontrast */
+    transition: color 0.3s ease;
+}
+
+footer li a:hover {
+    color: #28a745; /* Grünton beim Hover */
+}
+
+#campus-link {
+    /* Spezifische Anpassungen für diesen Link, falls nötig */
+}
+
+
+/* --- Responsive Adjustments --- */
+
+@media (max-width: 768px) {
+    body {
+        padding: 15px; /* Reduce overall padding */
+    }
+
+    .header-with-logo {
+        flex-direction: column; /* Stacks logo and title */
+        text-align: center;
+        gap: 10px;
+    }
+
+    .header-with-logo h1 {
+        font-size: 2em; /* Smaller title for tablets */
+    }
+
+    #header-logo {
+        height: 50px; /* Smaller logo for tablets */
+    }
+
+    .section {
+        padding: 12px; /* Slightly less padding for sections */
+    }
+
+    input, button {
+        padding: 8px; /* Slightly less padding for inputs/buttons */
+    }
+
+    th, td {
+        padding: 8px; /* Adjust table cell padding */
+        font-size: 0.9em; /* Smaller font for table content */
+    }
+
+    .action-buttons button {
+        padding: 4px 8px;
+        font-size: 0.8em;
+    }
+
+    footer ul {
+        grid-template-columns: repeat(2, 1fr); /* 2 Spalten auf Tablets */
+        gap: 0.5rem 1rem;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px; /* Even less overall padding for smartphones */
+    }
+
+    .header-with-logo {
+        gap: 8px;
+    }
+
+    .header-with-logo h1 {
+        font-size: 1.8em; /* Even smaller title for smartphones */
+    }
+
+    #header-logo {
+        height: 40px; /* Even smaller logo for smartphones */
+    }
+
+    .section {
+        padding: 10px;
+    }
+
+    input, button {
+        padding: 7px;
+        font-size: 0.9em;
+    }
+
+    /* Stack buttons in action-buttons for very small screens if they become too cramped */
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap; /* Allows buttons to wrap to next line */
+        gap: 5px; /* Space between wrapped buttons */
+        justify-content: flex-start;
+    }
+
+    .action-buttons button {
+        flex: 1 1 auto; /* Allows buttons to grow/shrink but not exceed container */
+        min-width: 80px; /* Ensure a minimum width */
+        margin-right: 0; /* Remove horizontal margin */
+    }
+
+    th, td {
+        padding: 6px;
+        font-size: 0.8em;
+    }
+
+    footer ul {
+        grid-template-columns: 1fr; /* Eine Spalte auf Smartphones */
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
 }
